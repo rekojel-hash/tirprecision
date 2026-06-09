@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#E8521A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>TirPro</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+  --bg: #0d0e10; --bg2: #14161a; --bg3: #1c1f25; --bg4: #252830;
+  --acc: #E8521A; --acc2: #ff6b35; --acc-dim: rgba(232,82,26,0.15);
+  --txt: #eeecea; --txt2: #9a9890; --txt3: #5c5a57;
+  --border: rgba(255,255,255,0.07);
+  --green: #2ec97a; --blue: #3b8bd4; --amber: #e8a21a; --red: #e84c4c;
+  --r: 10px; --font: 'SF Pro Display','Inter',system-ui,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { font-size:16px; }
+body { background:var(--bg); color:var(--txt); font-family:var(--font); min-height:100dvh; overflow-x:hidden; }
+button { font-family:inherit; cursor:pointer; border:none; }
+input,select,textarea { font-family:inherit; }
+.screen { display:none; flex-direction:column; min-height:100dvh; padding-bottom:84px; }
+.screen.active { display:flex; }
+
+nav {
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:rgba(13,14,16,0.96); backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  display:flex; padding:6px 0 max(6px,env(safe-area-inset-bottom));
+}
+.nav-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:none; color:var(--txt3); padding:5px 0; transition:color .2s;
+  font-size:9px; letter-spacing:.4px; text-transform:uppercase;
+}
+.nav-btn.active { color:var(--acc); }
+.nav-btn svg { width:20px; height:20px; stroke-width:1.5; }
+
+.header {
+  padding:18px 20px 10px; display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:10;
+  background:linear-gradient(var(--bg) 85%,transparent);
+}
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-target svg { width:30px; height:30px; }
+h1.app-title { font-size:20px; font-weight:600; letter-spacing:-.3px; }
+h1.app-title span { color:var(--acc); }
+
+.card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin:0 16px 12px; }
+.card-label { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; }
+.card-value { font-size:28px; font-weight:700; letter-spacing:-1px; }
+.card-sub { font-size:13px; color:var(--txt2); margin-top:4px; }
+
+.stats-row { display:flex; gap:10px; padding:0 16px 12px; }
+.stat-card { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:12px 10px; text-align:center; }
+.stat-val { font-size:20px; font-weight:700; color:var(--acc); letter-spacing:-.5px; }
+.stat-lbl { font-size:9px; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
+
+.section-title { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:1px; padding:4px 20px 10px; font-weight:500; }
+
+.session-item { display:flex; align-items:center; gap:14px; padding:13px 20px; border-bottom:1px solid var(--border); transition:background .15s; cursor:pointer; }
+.session-item:hover { background:var(--bg2); }
+.session-dot { width:40px; height:40px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-weight:700; font-size:13px; }
+.session-info { flex:1; min-width:0; }
+.session-date { font-size:12px; color:var(--txt2); }
+.session-score-big { font-size:16px; font-weight:700; }
+.session-tags { display:flex; gap:5px; margin-top:4px; flex-wrap:wrap; }
+.tag { font-size:10px; padding:2px 7px; border-radius:20px; background:var(--bg4); color:var(--txt2); }
+.tag.green { background:rgba(46,201,122,.12); color:var(--green); }
+.tag.amber { background:rgba(232,162,26,.12); color:var(--amber); }
+.tag.red { background:rgba(232,76,76,.12); color:var(--red); }
+
+.form-section { padding:0 16px 10px; }
+.form-label { font-size:12px; color:var(--txt2); margin-bottom:6px; display:block; letter-spacing:.3px; }
+.form-input { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:11px 13px; color:var(--txt); font-size:15px; outline:none; transition:border-color .2s; }
+.form-input:focus { border-color:var(--acc); }
+select.form-input option { background:var(--bg3); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.form-group { margin-bottom:13px; }
+
+.slider-wrap { display:flex; align-items:center; gap:10px; }
+input[type=range] { flex:1; height:4px; border-radius:2px; outline:none; cursor:pointer; -webkit-appearance:none; appearance:none; background:linear-gradient(to right,var(--acc) var(--pct,50%),var(--bg4) var(--pct,50%)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--acc); border:3px solid var(--bg); }
+
+.target-wrap { display:flex; flex-direction:column; align-items:center; padding:12px; gap:10px; }
+#targetCanvas { border-radius:50%; cursor:crosshair; touch-action:none; box-shadow:0 0 0 1px var(--border),0 0 40px rgba(232,82,26,.08); }
+.target-controls { display:flex; gap:10px; }
+.btn-sm { padding:8px 14px; border-radius:8px; font-size:13px; font-weight:500; background:var(--bg4); color:var(--txt2); border:1px solid var(--border); transition:all .2s; }
+.btn-sm:hover { border-color:var(--acc); color:var(--acc); }
+
+.btn-primary { width:calc(100% - 32px); margin:8px 16px 14px; background:var(--acc); color:#fff; font-size:16px; font-weight:600; padding:15px; border-radius:12px; letter-spacing:.2px; transition:opacity .2s,transform .1s; }
+.btn-primary:active { transform:scale(.98); opacity:.9; }
+.btn-secondary { width:calc(100% - 32px); margin:0 16px 12px; background:var(--bg3); color:var(--txt2); font-size:15px; font-weight:500; padding:13px; border-radius:12px; border:1px solid var(--border); }
+
+.chart-wrap { padding:0 16px 12px; }
+#progressChart { width:100%; border-radius:var(--r); }
+
+.equip-item { display:flex; align-items:center; gap:14px; padding:13px 20px; border-bottom:1px solid var(--border); }
+.equip-icon { width:38px; height:38px; border-radius:10px; background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.equip-info { flex:1; }
+.equip-name { font-size:15px; font-weight:500; }
+.equip-detail { font-size:12px; color:var(--txt2); margin-top:2px; }
+
+.badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:3px 9px; border-radius:20px; font-weight:500; }
+.badge-green { background:rgba(46,201,122,.12); color:var(--green); }
+.badge-amber { background:rgba(232,162,26,.12); color:var(--amber); }
+
+.toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--bg3); border:1px solid var(--border); color:var(--txt); padding:10px 20px; border-radius:30px; font-size:14px; z-index:999; opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.shots-count { font-size:12px; color:var(--txt2); }
+.shots-score { font-size:22px; font-weight:700; color:var(--acc); }
+.shots-avg { font-size:11px; color:var(--txt3); }
+
+.empty-state { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:40px; color:var(--txt3); text-align:center; }
+.empty-state svg { opacity:.3; }
+.empty-state p { font-size:14px; line-height:1.6; }
+
+.analysis-row { display:flex; gap:10px; padding:0 16px 12px; }
+.analysis-card { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:14px; }
+.analysis-card .title { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+.trend-up { color:var(--green); font-size:18px; font-weight:700; }
+.trend-down { color:var(--red); font-size:18px; font-weight:700; }
+.trend-neutral { color:var(--amber); font-size:18px; font-weight:700; }
+
+/* BILAN A CHAUD */
+.bilan-card { background:linear-gradient(135deg,rgba(232,82,26,.08),rgba(232,82,26,.03)); border:1px solid rgba(232,82,26,.2); border-radius:12px; padding:16px; margin:0 16px 12px; }
+.bilan-title { font-size:13px; font-weight:600; color:var(--acc); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+
+/* MORE SCREEN */
+.more-section { padding:16px 16px 6px; }
+.more-section-title { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-weight:500; }
+.more-row { display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:10px; cursor:pointer; transition:border-color .2s; }
+.more-row:hover { border-color:var(--acc); }
+.more-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.more-info { flex:1; }
+.more-name { font-size:15px; font-weight:500; }
+.more-desc { font-size:12px; color:var(--txt2); margin-top:2px; }
+
+/* SUPPORT CARD */
+.support-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:10px; }
+.support-btn { display:flex; align-items:center; gap:12px; padding:13px 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg3); width:100%; margin-bottom:10px; transition:border-color .2s,background .2s; cursor:pointer; }
+.support-btn:hover { border-color:var(--acc); background:var(--bg4); }
+.support-btn-icon { font-size:22px; flex-shrink:0; }
+.support-btn-info { text-align:left; flex:1; }
+.support-btn-name { font-size:14px; font-weight:600; color:var(--txt); }
+.support-btn-desc { font-size:12px; color:var(--txt2); margin-top:1px; }
+
+.btc-box { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-top:10px; }
+.btc-address { font-size:10px; color:var(--txt2); word-break:break-all; line-height:1.5; font-family:monospace; }
+.btc-copy { font-size:11px; color:var(--acc); margin-top:6px; cursor:pointer; background:none; border:none; font-family:inherit; }
+
+/* DATA ACTIONS */
+.data-action { display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:10px; cursor:pointer; transition:border-color .2s; }
+.data-action:hover { border-color:var(--acc); }
+.data-action-icon { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.data-action-info { flex:1; }
+.data-action-name { font-size:14px; font-weight:500; }
+.data-action-desc { font-size:12px; color:var(--txt2); margin-top:2px; }
+.data-stats { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; margin-bottom:10px; }
+
+/* CONFIRM DIALOG */
+.confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; display:none; align-items:flex-end; justify-content:center; padding-bottom:max(20px,env(safe-area-inset-bottom)); }
+.confirm-overlay.show { display:flex; }
+.confirm-box { background:var(--bg2); border:1px solid var(--border); border-radius:16px 16px 12px 12px; padding:20px; width:calc(100% - 32px); max-width:400px; }
+.confirm-title { font-size:16px; font-weight:600; margin-bottom:8px; }
+.confirm-msg { font-size:14px; color:var(--txt2); margin-bottom:18px; line-height:1.5; }
+.confirm-btns { display:flex; gap:10px; }
+.confirm-cancel { flex:1; padding:12px; border-radius:10px; background:var(--bg4); color:var(--txt2); font-size:14px; border:none; font-family:inherit; cursor:pointer; }
+.confirm-ok { flex:1; padding:12px; border-radius:10px; background:var(--red); color:#fff; font-size:14px; font-weight:600; border:none; font-family:inherit; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirm-title">Confirmer</div>
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirm()">Annuler</button>
+      <button class="confirm-ok" id="confirm-ok">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- =================== HOME =================== -->
+<div class="screen active" id="s-home">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-target">
+        <svg viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="15" stroke="#E8521A" stroke-width="1.2"/>
+          <circle cx="16" cy="16" r="11" stroke="#E8521A" stroke-width="1" stroke-opacity=".6"/>
+          <circle cx="16" cy="16" r="7" stroke="#E8521A" stroke-width="1" stroke-opacity=".4"/>
+          <circle cx="16" cy="16" r="3" stroke="#E8521A" stroke-width="1" stroke-opacity=".3"/>
+          <circle cx="16" cy="16" r="1.5" fill="#E8521A"/>
+        </svg>
+      </div>
+      <h1 class="app-title">Tir<span>Pro</span></h1>
+    </div>
+    <button class="btn-sm" onclick="showScreen('s-new')">+ Séance</button>
+  </div>
+  <div id="home-stats"></div>
+  <div id="home-recent"></div>
+</div>
+
+<!-- =================== NEW SESSION =================== -->
+<div class="screen" id="s-new">
+  <div class="header">
+    <button onclick="showScreen('s-home')" style="background:none;color:var(--txt2);font-size:15px;">← Retour</button>
+    <span style="font-size:16px;font-weight:600;">Nouvelle séance</span>
+    <div style="width:60px;"></div>
+  </div>
+
+  <div class="section-title">Informations générales</div>
+  <div class="form-section">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input class="form-input" type="date" id="f-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Durée (min)</label>
+        <input class="form-input" type="number" id="f-duration" placeholder="60" min="5" max="300">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Lieu / Stand</label>
+      <input class="form-input" type="text" id="f-location" placeholder="Stand municipal, domicile…">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="f-type">
+          <option value="entrainement">Entraînement</option>
+          <option value="competition">Compétition</option>
+          <option value="test">Test matériel</option>
+          <option value="technique">Travail technique</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pistolet utilisé</label>
+        <select class="form-input" id="f-pistol">
+          <option value="">Sélectionner…</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">État physique</div>
+  <div class="form-section">
+    <div class="form-group">
+      <label class="form-label">Fréquence cardiaque repos (bpm)</label>
+      <input class="form-input" type="number" id="f-hr" placeholder="60" min="40" max="120">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fatigue ressentie <span id="v-fatigue" style="color:var(--acc);float:right;font-weight:700;">5</span></label>
+      <div class="slider-wrap">
+        <span style="font-size:11px;color:var(--txt3);">Reposé</span>
+        <input type="range" id="f-fatigue" min="1" max="10" value="5" oninput="updateSlider(this,'v-fatigue')">
+        <span style="font-size:11px;color:var(--txt3);">Épuisé</span>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Sommeil (h)</label>
+        <input class="form-input" type="number" id="f-sleep" placeholder="7.5" min="0" max="12" step="0.5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">FC repos (bpm)</label>
+        <input class="form-input" type="number" id="f-hr2" placeholder="62" min="40" max="120">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Position / Maintien <span id="v-posture" style="color:var(--acc);float:right;font-weight:700;">5</span></label>
+      <div class="slider-wrap">
+        <span style="font-size:11px;color:var(--txt3);">Instable</span>
+        <input type="range" id="f-posture" min="1" max="10" value="5" oninput="updateSlider(this,'v-posture')">
+        <span style="font-size:11px;color:var(--txt3);">Solide</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">État mental pré-séance</div>
+  <div class="form-section">
+    <div class="form-group">
+      <label class="form-label">Concentration <span id="v-focus" style="color:var(--acc);float:right;font-weight:700;">5</span></label>
+      <div class="slider-wrap">
+        <span style="font-size:11px;color:var(--txt3);">Dispersé</span>
+        <input type="range" id="f-focus" min="1" max="10" value="5" oninput="updateSlider(this,'v-focus')">
+        <span style="font-size:11px;color:var(--txt3);">Focus</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Stress / Pression <span id="v-stress" style="color:var(--acc);float:right;font-weight:700;">3</span></label>
+      <div class="slider-wrap">
+        <span style="font-size:11px;color:var(--txt3);">Serein</span>
+        <input type="range" id="f-stress" min="1" max="10" value="3" oninput="updateSlider(this,'v-stress')">
+        <span style="font-size:11px;color:var(--txt3);">Stressé</span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Routine pré-séance effectuée</label>
+      <select class="form-input" id="f-routine">
+        <option value="oui">Oui, complète</option>
+        <option value="partielle">Partielle</option>
+        <option value="non">Non</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-title">Conditions extérieures</div>
+  <div class="form-section">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Lumière</label>
+        <select class="form-input" id="f-light">
+          <option value="naturelle">Naturelle</option>
+          <option value="artificielle">Artificielle</option>
+          <option value="mixte">Mixte</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Température (°C)</label>
+        <input class="form-input" type="number" id="f-temp" placeholder="20" min="-10" max="45">
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Matériel</div>
+  <div class="form-section">
+    <div class="form-group">
+      <label class="form-label">Lot de plombs</label>
+      <input class="form-input" type="text" id="f-pellets" placeholder="RWS Meisterkugeln, lot #42…">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Pression (bar)</label>
+        <input class="form-input" type="number" id="f-pressure" placeholder="200" min="0" max="300" step="5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nb tirs prévus</label>
+        <input class="form-input" type="number" id="f-count" placeholder="60" min="1" max="999">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Réglages visée modifiés ?</label>
+      <select class="form-input" id="f-sight">
+        <option value="non">Non, inchangés</option>
+        <option value="hausse">Hausse ajustée</option>
+        <option value="derive">Dérive ajustée</option>
+        <option value="les-deux">Les deux ajustés</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-title">Résultats sur cible</div>
+  <div class="target-wrap">
+    <div style="display:flex;gap:20px;align-items:center;">
+      <div style="text-align:center;">
+        <div class="shots-count" id="shots-count">0 tir</div>
+        <div class="shots-score" id="shots-score">—</div>
+        <div class="shots-avg" id="shots-avg">moy. —</div>
+      </div>
+      <canvas id="targetCanvas" width="210" height="210"></canvas>
+    </div>
+    <div class="target-controls">
+      <button class="btn-sm" onclick="undoShot()">↩ Annuler</button>
+      <button class="btn-sm" onclick="clearTarget()">🗑 Effacer</button>
+    </div>
+    <div style="font-size:11px;color:var(--txt3);text-align:center;">Appuyez sur la cible pour placer les impacts</div>
+  </div>
+
+  <!-- ===== BILAN À CHAUD ===== -->
+  <div class="section-title" style="margin-top:4px;">Bilan à chaud</div>
+  <div style="padding:0 16px 4px;">
+    <div class="bilan-card">
+      <div class="bilan-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Évaluation post-séance
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ressenti global de la séance <span id="v-ressenti" style="color:var(--acc);float:right;font-weight:700;">5</span></label>
+        <div class="slider-wrap">
+          <span style="font-size:11px;color:var(--txt3);">Mauvaise</span>
+          <input type="range" id="f-ressenti" min="1" max="10" value="5" oninput="updateSlider(this,'v-ressenti')">
+          <span style="font-size:11px;color:var(--txt3);">Excellente</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stress / Énervement pendant la séance <span id="v-stress2" style="color:var(--acc);float:right;font-weight:700;">3</span></label>
+        <div class="slider-wrap">
+          <span style="font-size:11px;color:var(--txt3);">Calme</span>
+          <input type="range" id="f-stress2" min="1" max="10" value="3" oninput="updateSlider(this,'v-stress2')">
+          <span style="font-size:11px;color:var(--txt3);">Énervé</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Distraction <span id="v-distraction" style="color:var(--acc);float:right;font-weight:700;">3</span></label>
+        <div class="slider-wrap">
+          <span style="font-size:11px;color:var(--txt3);">Concentré</span>
+          <input type="range" id="f-distraction" min="1" max="10" value="3" oninput="updateSlider(this,'v-distraction')">
+          <span style="font-size:11px;color:var(--txt3);">Distrait</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Régularité des tirs <span id="v-regularite" style="color:var(--acc);float:right;font-weight:700;">5</span></label>
+        <div class="slider-wrap">
+          <span style="font-size:11px;color:var(--txt3);">Irrégulier</span>
+          <input type="range" id="f-regularite" min="1" max="10" value="5" oninput="updateSlider(this,'v-regularite')">
+          <span style="font-size:11px;color:var(--txt3);">Régulier</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gestion du souffle <span id="v-souffle" style="color:var(--acc);float:right;font-weight:700;">5</span></label>
+        <div class="slider-wrap">
+          <span style="font-size:11px;color:var(--txt3);">Difficile</span>
+          <input type="range" id="f-souffle" min="1" max="10" value="5" oninput="updateSlider(this,'v-souffle')">
+          <span style="font-size:11px;color:var(--txt3);">Maîtrisé</span>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Tempo de tir</label>
+        <div style="display:flex;gap:8px;">
+          <button class="tempo-btn" data-val="lent" onclick="selectTempo(this)">🐢 Trop lent</button>
+          <button class="tempo-btn active" data-val="bon" onclick="selectTempo(this)">✓ Bon rythme</button>
+          <button class="tempo-btn" data-val="rapide" onclick="selectTempo(this)">⚡ Trop rapide</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Notes & observations</div>
+  <div class="form-section">
+    <div class="form-group">
+      <label class="form-label">Sensations, points de travail, prochains objectifs</label>
+      <textarea class="form-input" id="f-notes" rows="4" style="resize:vertical;" placeholder="Appui gâchette trop brusque en série 3, travail sur le souffle…"></textarea>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="saveSession()">Enregistrer la séance</button>
+  <div style="height:8px;"></div>
+</div>
+
+<!-- =================== HISTORY =================== -->
+<div class="screen" id="s-history">
+  <div class="header">
+    <h1 class="app-title">Historique</h1>
+  </div>
+  <div id="history-list"></div>
+</div>
+
+<!-- =================== EQUIPMENT =================== -->
+<div class="screen" id="s-equip">
+  <div class="header">
+    <h1 class="app-title">Matériel</h1>
+    <button class="btn-sm" onclick="showAddEquip()">+ Ajouter</button>
+  </div>
+  <div id="equip-list"></div>
+  <div id="add-equip-form" style="display:none;">
+    <div class="section-title">Nouveau pistolet</div>
+    <div class="form-section">
+      <div class="form-group">
+        <label class="form-label">Nom / Modèle</label>
+        <input class="form-input" type="text" id="eq-name" placeholder="Feinwerkbau P8X">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Marque</label>
+          <input class="form-input" type="text" id="eq-brand" placeholder="FWB">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Calibre</label>
+          <select class="form-input" id="eq-caliber">
+            <option value="4.5mm">.177 / 4.5mm</option>
+            <option value="5.5mm">.22 / 5.5mm</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Propulsion</label>
+          <select class="form-input" id="eq-propulsion">
+            <option value="co2">CO₂</option>
+            <option value="pcp">PCP / Air comprimé</option>
+            <option value="ressort">Ressort</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Année achat</label>
+          <input class="form-input" type="number" id="eq-year" placeholder="2023" min="1980" max="2099">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input class="form-input" type="text" id="eq-notes" placeholder="Détente réglée à 500g…">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveEquip()">Ajouter le pistolet</button>
+    <button class="btn-secondary" onclick="cancelAddEquip()">Annuler</button>
+  </div>
+</div>
+
+<!-- =================== ANALYSIS =================== -->
+<div class="screen" id="s-analysis">
+  <div class="header">
+    <h1 class="app-title">Analyse</h1>
+  </div>
+  <div id="analysis-content"></div>
+</div>
+
+<!-- =================== MORE =================== -->
+<div class="screen" id="s-more">
+  <div class="header">
+    <h1 class="app-title">Plus</h1>
+  </div>
+
+  <!-- SAUVEGARDE -->
+  <div class="more-section">
+    <div class="more-section-title">Données</div>
+    <div id="data-stats-block"></div>
+    <div class="data-action" onclick="exportData()">
+      <div class="data-action-icon" style="background:rgba(46,201,122,.12);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2ec97a" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="data-action-info">
+        <div class="data-action-name">Exporter mes données</div>
+        <div class="data-action-desc">Télécharger un fichier JSON (séances + matériel)</div>
+      </div>
+    </div>
+    <div class="data-action" onclick="document.getElementById('import-input').click()">
+      <div class="data-action-icon" style="background:rgba(59,139,212,.12);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b8bd4" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div class="data-action-info">
+        <div class="data-action-name">Importer des données</div>
+        <div class="data-action-desc">Restaurer depuis un fichier JSON exporté</div>
+      </div>
+    </div>
+    <input type="file" id="import-input" accept=".json" style="display:none;" onchange="importData(this)">
+    <div class="data-action" onclick="confirmResetData()">
+      <div class="data-action-icon" style="background:rgba(232,76,76,.12);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e84c4c" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      </div>
+      <div class="data-action-info">
+        <div class="data-action-name" style="color:var(--red);">Effacer toutes les données</div>
+        <div class="data-action-desc">Supprimer définitivement séances et matériel</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOUTIEN -->
+  <div class="more-section" style="margin-top:4px;">
+    <div class="more-section-title">Soutenir le projet</div>
+    <div class="support-card">
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px;line-height:1.6;">TirPro est gratuit et sans publicité. Si l'application vous aide à progresser, vous pouvez soutenir son développement :</p>
+
+      <button class="support-btn" onclick="openLink('https://ko-fi.com/rekojel')">
+        <span class="support-btn-icon">☕</span>
+        <div class="support-btn-info">
+          <div class="support-btn-name">Ko-fi</div>
+          <div class="support-btn-desc">ko-fi.com/rekojel — paiement par carte</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+      </button>
+
+      <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;margin-top:4px;">Bitcoin</div>
+      <div class="btc-box">
+        <div style="font-size:11px;color:var(--txt2);margin-bottom:6px;">Adresse Bitcoin (Bitstack)</div>
+        <div class="btc-address" id="btc-address">bc1q07ex3srpj8n0eud30qtu4f7nv9ydnp3gpqkz9lrgpjxud5288fhqrv7urd</div>
+        <button class="btc-copy" onclick="copyBTC()">Copier l'adresse</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP INFO -->
+  <div class="more-section" style="margin-top:4px;">
+    <div class="more-section-title">Application</div>
+    <div class="support-card" style="padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:14px;font-weight:500;">TirPro</div>
+          <div style="font-size:12px;color:var(--txt2);margin-top:2px;">Tir de précision pistolet 10m · v1.1</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;color:var(--txt3);">Fonctionne</div>
+          <div style="font-size:11px;color:var(--green);">hors ligne ✓</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height:16px;"></div>
+</div>
+
+<!-- =================== NAV =================== -->
+<nav>
+  <button class="nav-btn active" id="nav-home" onclick="showScreen('s-home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Accueil
+  </button>
+  <button class="nav-btn" id="nav-history" onclick="showScreen('s-history')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Historique
+  </button>
+  <button class="nav-btn" id="nav-equip" onclick="showScreen('s-equip')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="3"/><path d="M12 11v10"/><path d="M8 15l4-4 4 4"/></svg>
+    Matériel
+  </button>
+  <button class="nav-btn" id="nav-analysis" onclick="showScreen('s-analysis')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Analyse
+  </button>
+  <button class="nav-btn" id="nav-more" onclick="showScreen('s-more')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="5" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/></svg>
+    Plus
+  </button>
+</nav>
+
+<style>
+.tempo-btn { flex:1; padding:9px 4px; border-radius:8px; font-size:11px; font-weight:500; background:var(--bg4); color:var(--txt2); border:1px solid var(--border); cursor:pointer; transition:all .2s; text-align:center; }
+.tempo-btn.active { background:var(--acc-dim); border-color:var(--acc); color:var(--acc); }
+</style>
+
+<script>
+// =================== DATA STORE ===================
+const DB = {
+  get sessions() { return JSON.parse(localStorage.getItem('tp_sessions')||'[]'); },
+  set sessions(v) { localStorage.setItem('tp_sessions',JSON.stringify(v)); },
+  get equipment() { return JSON.parse(localStorage.getItem('tp_equipment')||'[]'); },
+  set equipment(v) { localStorage.setItem('tp_equipment',JSON.stringify(v)); },
+};
+
+// =================== SCREENS ===================
+const screens = ['s-home','s-new','s-history','s-equip','s-analysis','s-more'];
+const navMap = {'s-home':'nav-home','s-history':'nav-history','s-equip':'nav-equip','s-analysis':'nav-analysis','s-more':'nav-more'};
+
+function showScreen(id) {
+  screens.forEach(s => document.getElementById(s).classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (navMap[id]) document.getElementById(navMap[id]).classList.add('active');
+  window.scrollTo(0,0);
+  if (id==='s-home') renderHome();
+  if (id==='s-history') renderHistory();
+  if (id==='s-equip') renderEquip();
+  if (id==='s-analysis') renderAnalysis();
+  if (id==='s-more') renderMore();
+  if (id==='s-new') initNewSession();
+}
+
+// =================== TARGET CANVAS ===================
+let shots = [];
+const canvas = document.getElementById('targetCanvas');
+const ctx = canvas.getContext('2d');
+const W=210,H=210,CX=105,CY=105,R=96;
+const ZONES=[{r:1.0,score:1},{r:0.9,score:2},{r:0.78,score:3},{r:0.66,score:4},{r:0.54,score:5},{r:0.42,score:6},{r:0.30,score:7},{r:0.20,score:8},{r:0.12,score:9},{r:0.06,score:10}];
+
+function getScore(dx,dy){
+  const dist=Math.sqrt(dx*dx+dy*dy)/R;
+  for(let i=ZONES.length-1;i>=0;i--){ if(dist<=ZONES[i].r) return ZONES[i].score; }
+  return 0;
+}
+function drawTarget(){
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f5f0e8'; ctx.beginPath(); ctx.arc(CX,CY,R,0,Math.PI*2); ctx.fill();
+  const rc=['#f5f0e8','#f5f0e8','#f5f0e8','#f5f0e8','#f5f0e8','#f5f0e8','#222','#222','#222','#222'];
+  const sc=['#aaa','#aaa','#aaa','#aaa','#aaa','#aaa','#666','#666','#666','#666'];
+  for(let i=0;i<ZONES.length;i++){
+    const rz=ZONES[i].r*R;
+    ctx.beginPath(); ctx.arc(CX,CY,rz,0,Math.PI*2);
+    ctx.fillStyle=rc[i]; ctx.fill();
+    ctx.strokeStyle=sc[i]; ctx.lineWidth=0.5; ctx.stroke();
+    if(i<ZONES.length-1){
+      const nr=ZONES[i+1].r*R;
+      const mid=(rz+nr)/2;
+      ctx.fillStyle=i<6?'#ccc':'#aaa';
+      ctx.font=`${Math.max(7,9-i)}px system-ui`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(ZONES[i].score,CX+mid*0.8,CY);
+    }
+  }
+  ctx.fillStyle='#f5f0e8'; ctx.beginPath(); ctx.arc(CX,CY,3,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(0,0,0,.12)'; ctx.lineWidth=0.5;
+  ctx.beginPath(); ctx.moveTo(CX-R,CY); ctx.lineTo(CX+R,CY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(CX,CY-R); ctx.lineTo(CX,CY+R); ctx.stroke();
+  shots.forEach((s,i)=>{
+    const x=CX+s.dx,y=CY+s.dy;
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle='#E8521A'; ctx.fill();
+    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='bold 7px system-ui';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(i+1,x,y);
+  });
+  updateShotStats();
+}
+function updateShotStats(){
+  const n=shots.length;
+  document.getElementById('shots-count').textContent=n+(n>1?' tirs':' tir');
+  if(!n){ document.getElementById('shots-score').textContent='—'; document.getElementById('shots-avg').textContent='moy. —'; return; }
+  const total=shots.reduce((s,x)=>s+x.score,0);
+  document.getElementById('shots-score').textContent=total+' pts';
+  document.getElementById('shots-avg').textContent='moy. '+(total/n).toFixed(1);
+}
+function getCanvasPos(e){
+  const rect=canvas.getBoundingClientRect();
+  const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  return {x:(cx-rect.left)*sx,y:(cy-rect.top)*sy};
+}
+canvas.addEventListener('click',e=>addShot(getCanvasPos(e)));
+canvas.addEventListener('touchend',e=>{e.preventDefault();addShot(getCanvasPos(e));});
+function addShot(pos){
+  const dx=pos.x-CX,dy=pos.y-CY;
+  if(Math.sqrt(dx*dx+dy*dy)>R+10) return;
+  shots.push({dx,dy,score:getScore(dx,dy)}); drawTarget();
+}
+function undoShot(){ shots.pop(); drawTarget(); }
+function clearTarget(){ shots=[]; drawTarget(); }
+
+// =================== TEMPO ==================
+let currentTempo = 'bon';
+function selectTempo(btn){
+  document.querySelectorAll('.tempo-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentTempo = btn.dataset.val;
+}
+
+// =================== HOME ===================
+function renderHome(){
+  const sessions=DB.sessions;
+  const statsEl=document.getElementById('home-stats');
+  const recentEl=document.getElementById('home-recent');
+  if(!sessions.length){
+    statsEl.innerHTML='';
+    recentEl.innerHTML=`<div class="empty-state">
+      <svg width="60" height="60" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" stroke="#E8521A" stroke-width="1.5"/><circle cx="32" cy="32" r="20" stroke="#E8521A" stroke-width="1.2" opacity=".6"/><circle cx="32" cy="32" r="10" stroke="#E8521A" stroke-width="1" opacity=".4"/><circle cx="32" cy="32" r="4" fill="#E8521A" opacity=".3"/></svg>
+      <p>Aucune séance enregistrée.<br>Créez votre première séance !</p>
+      <button class="btn-primary" style="width:auto;margin:0;padding:12px 24px;" onclick="showScreen('s-new')">+ Première séance</button>
+    </div>`;
+    return;
+  }
+  const scores=sessions.map(s=>s.totalScore||0);
+  const best=Math.max(...scores);
+  const last=sessions[sessions.length-1];
+  const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const trend=scores.length>=2?(scores[scores.length-1]-scores[scores.length-2]):0;
+  const trendStr=trend>0?`+${trend} ↑`:trend<0?`${trend} ↓`:'= stable';
+  const trendColor=trend>0?'var(--green)':trend<0?'var(--red)':'var(--amber)';
+  statsEl.innerHTML=`
+    <div class="card" style="margin:14px 16px 8px;">
+      <div class="card-label">Dernière séance</div>
+      <div class="card-value">${last.totalScore||0} <span style="font-size:16px;color:var(--txt2);">pts</span></div>
+      <div class="card-sub">${formatDate(last.date)} · ${last.location||'—'}</div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">${best}</div><div class="stat-lbl">Meilleur</div></div>
+      <div class="stat-card"><div class="stat-val">${avg}</div><div class="stat-lbl">Moyenne</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:${trendColor};font-size:15px;">${trendStr}</div><div class="stat-lbl">Tendance</div></div>
+      <div class="stat-card"><div class="stat-val">${sessions.length}</div><div class="stat-lbl">Séances</div></div>
+    </div>`;
+  const recent=[...sessions].reverse().slice(0,5);
+  recentEl.innerHTML=`<div class="section-title">Séances récentes</div>`+recent.map(s=>sessionItem(s)).join('');
+}
+
+// =================== HISTORY ===================
+function renderHistory(){
+  const sessions=DB.sessions;
+  const el=document.getElementById('history-list');
+  if(!sessions.length){ el.innerHTML=`<div class="empty-state"><p>Aucune séance enregistrée.</p></div>`; return; }
+  el.innerHTML=[...sessions].reverse().map(s=>sessionItem(s)).join('');
+}
+function sessionItem(s){
+  const pct=s.shotsCount>0?Math.round(s.totalScore/(s.shotsCount*10)*100):0;
+  const color=pct>=80?'var(--green)':pct>=60?'var(--amber)':'var(--txt3)';
+  const tagClass=pct>=80?'green':pct>=60?'amber':'';
+  const ressenti=s.bilan?.ressenti;
+  return `<div class="session-item">
+    <div class="session-dot" style="border-color:${color};color:${color};">${s.totalScore||'—'}</div>
+    <div class="session-info">
+      <div class="session-score-big">${s.location||'Séance'} <span style="font-size:12px;color:var(--txt2);">${s.type||''}</span></div>
+      <div class="session-date">${formatDate(s.date)} · ${s.shotsCount||0} tirs · ${s.duration||'?'} min</div>
+      <div class="session-tags">
+        ${s.totalScore?`<span class="tag ${tagClass}">${s.totalScore} pts</span>`:''}
+        ${ressenti>=8?'<span class="tag green">Ressenti ★</span>':''}
+        ${s.mental?.focus>=8?'<span class="tag green">Focus ★</span>':''}
+        ${s.bilan?.stress2>=7?'<span class="tag red">Stress ↑</span>':''}
+        ${s.bilan?.distraction>=7?'<span class="tag amber">Distrait</span>':''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// =================== EQUIPMENT ===================
+function renderEquip(){
+  const equip=DB.equipment;
+  const sessions=DB.sessions;
+  const el=document.getElementById('equip-list');
+  document.getElementById('add-equip-form').style.display='none';
+  if(!equip.length){ el.innerHTML=`<div class="empty-state"><p>Aucun matériel enregistré.<br>Ajoutez votre pistolet.</p></div>`; return; }
+  el.innerHTML=equip.map(e=>{
+    const s=sessions.filter(x=>x.pistol===e.id).reduce((t,x)=>t+(parseInt(x.shotsCount)||0),0);
+    const icon=e.propulsion==='co2'?'💨':e.propulsion==='pcp'?'🔵':'⚙️';
+    return `<div class="equip-item">
+      <div class="equip-icon">${icon}</div>
+      <div class="equip-info">
+        <div class="equip-name">${e.name}</div>
+        <div class="equip-detail">${e.brand||''} · ${e.caliber||''} · ${e.propulsion||''}</div>
+        <div style="margin-top:4px;"><span class="badge badge-green">${s} tirs</span>${e.notes?`<span style="font-size:11px;color:var(--txt3);margin-left:8px;">${e.notes}</span>`:''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function showAddEquip(){ document.getElementById('add-equip-form').style.display='block'; document.getElementById('equip-list').style.display='none'; document.querySelector('#s-equip .header button').style.display='none'; }
+function cancelAddEquip(){ document.getElementById('add-equip-form').style.display='none'; document.getElementById('equip-list').style.display='block'; document.querySelector('#s-equip .header button').style.display=''; renderEquip(); }
+function saveEquip(){
+  const name=document.getElementById('eq-name').value.trim();
+  if(!name){showToast('Entrez un nom pour le pistolet');return;}
+  const equip=DB.equipment;
+  equip.push({id:Date.now().toString(),name,brand:document.getElementById('eq-brand').value,caliber:document.getElementById('eq-caliber').value,propulsion:document.getElementById('eq-propulsion').value,year:document.getElementById('eq-year').value,notes:document.getElementById('eq-notes').value});
+  DB.equipment=equip;
+  ['eq-name','eq-brand','eq-notes','eq-year'].forEach(id=>document.getElementById(id).value='');
+  cancelAddEquip(); showToast('Pistolet ajouté ✓');
+}
+
+// =================== ANALYSIS ===================
+function renderAnalysis(){
+  const sessions=DB.sessions;
+  const el=document.getElementById('analysis-content');
+  if(sessions.length<2){ el.innerHTML=`<div class="empty-state"><p>Enregistrez au moins 2 séances pour voir vos analyses.</p></div>`; return; }
+  const scores=sessions.map(s=>s.totalScore||0);
+  const last5=scores.slice(-5);
+  const avgLast5=Math.round(last5.reduce((a,b)=>a+b,0)/last5.length);
+  const allAvg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const trend=scores[scores.length-1]-scores[0];
+
+  // Corrélations bilan à chaud
+  const withBilan=sessions.filter(s=>s.bilan&&s.totalScore);
+  const bonRessenti=withBilan.filter(s=>s.bilan.ressenti>=8);
+  const avgBonRessenti=bonRessenti.length?Math.round(bonRessenti.reduce((a,b)=>a+b.totalScore,0)/bonRessenti.length):0;
+  const faibleStress=withBilan.filter(s=>s.bilan.stress2<=3);
+  const avgFaibleStress=faibleStress.length?Math.round(faibleStress.reduce((a,b)=>a+b.totalScore,0)/faibleStress.length):0;
+  const bonSouffle=withBilan.filter(s=>s.bilan.souffle>=8);
+  const avgBonSouffle=bonSouffle.length?Math.round(bonSouffle.reduce((a,b)=>a+b.totalScore,0)/bonSouffle.length):0;
+  const bonRegularite=withBilan.filter(s=>s.bilan.regularite>=8);
+  const avgBonReg=bonRegularite.length?Math.round(bonRegularite.reduce((a,b)=>a+b.totalScore,0)/bonRegularite.length):0;
+
+  const withSleep=sessions.filter(s=>s.physical?.sleep&&s.totalScore);
+  const goodSleep=withSleep.filter(s=>s.physical.sleep>=7.5);
+  const avgGoodSleep=goodSleep.length?Math.round(goodSleep.reduce((a,b)=>a+b.totalScore,0)/goodSleep.length):0;
+
+  const paired=sessions.filter(s=>s.mental?.focus&&s.totalScore);
+  const bestFocus=paired.filter(p=>p.mental.focus>=8);
+  const avgFocusScore=bestFocus.length?Math.round(bestFocus.reduce((a,b)=>a+b.totalScore,0)/bestFocus.length):0;
+
+  el.innerHTML=`
+    <div class="card" style="margin:14px 16px 8px;">
+      <div class="card-label">Progression globale</div>
+      <div class="card-value" style="color:${trend>=0?'var(--green)':'var(--red)'};">${trend>=0?'+':''}${trend} pts</div>
+      <div class="card-sub">Depuis ${formatDate(sessions[0].date)}</div>
+    </div>
+    <div class="analysis-row">
+      <div class="analysis-card">
+        <div class="title">Moyenne générale</div>
+        <div class="trend-neutral">${allAvg}</div>
+        <div style="font-size:11px;color:var(--txt3);">sur ${sessions.length} séances</div>
+      </div>
+      <div class="analysis-card">
+        <div class="title">5 dernières</div>
+        <div class="${avgLast5>=allAvg?'trend-up':'trend-down'}">${avgLast5}</div>
+        <div style="font-size:11px;color:var(--txt3);">${avgLast5>=allAvg?'En progression':'En baisse'}</div>
+      </div>
+    </div>
+
+    <div class="section-title">Corrélations bilan à chaud</div>
+    ${avgBonRessenti?`<div class="card"><div class="card-label">⭐ Bon ressenti (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--green);">Score moy. ${avgBonRessenti} pts</div><div class="card-sub">Sur ${bonRessenti.length} séance(s) très bien ressenties</div></div>`:''}
+    ${avgFaibleStress?`<div class="card"><div class="card-label">🧘 Stress faible (≤3/10)</div><div style="font-size:18px;font-weight:700;color:var(--green);">Score moy. ${avgFaibleStress} pts</div><div class="card-sub">Sur ${faibleStress.length} séance(s) calmes</div></div>`:''}
+    ${avgBonSouffle?`<div class="card"><div class="card-label">💨 Souffle maîtrisé (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--blue);">Score moy. ${avgBonSouffle} pts</div><div class="card-sub">Sur ${bonSouffle.length} séance(s)</div></div>`:''}
+    ${avgBonReg?`<div class="card"><div class="card-label">🔁 Tirs réguliers (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--blue);">Score moy. ${avgBonReg} pts</div><div class="card-sub">Sur ${bonRegularite.length} séance(s)</div></div>`:''}
+
+    <div class="section-title">Corrélations physiques</div>
+    ${avgFocusScore?`<div class="card"><div class="card-label">🎯 Focus élevé (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--green);">+${Math.max(0,avgFocusScore-allAvg)} pts</div><div class="card-sub">Score moyen avec focus élevé : ${avgFocusScore} pts</div></div>`:''}
+    ${avgGoodSleep?`<div class="card"><div class="card-label">😴 Sommeil ≥ 7.5h</div><div style="font-size:18px;font-weight:700;color:var(--green);">Score moy. ${avgGoodSleep} pts</div><div class="card-sub">Sur ${goodSleep.length} séance(s) bien reposé</div></div>`:''}
+
+    <div class="section-title">Courbe de progression</div>
+    <div class="chart-wrap"><canvas id="progressChart" height="160"></canvas></div>`;
+
+  drawProgressChart(sessions);
+}
+
+function drawProgressChart(sessions){
+  const c=document.getElementById('progressChart');
+  if(!c) return;
+  const cx=c.getContext('2d');
+  c.width=(c.offsetWidth||300)*window.devicePixelRatio;
+  c.height=160*window.devicePixelRatio;
+  cx.scale(window.devicePixelRatio,window.devicePixelRatio);
+  const W=c.offsetWidth||300,H=160;
+  const scores=sessions.map(s=>s.totalScore||0);
+  const mn=Math.max(0,Math.min(...scores)-5),mx=Math.max(...scores)+5;
+  const pad={l:30,r:16,t:16,b:24},pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+  cx.clearRect(0,0,W,H);
+  for(let i=0;i<=4;i++){
+    const y=pad.t+ph*(1-i/4);
+    cx.strokeStyle='rgba(255,255,255,0.05)'; cx.lineWidth=1;
+    cx.beginPath(); cx.moveTo(pad.l,y); cx.lineTo(W-pad.r,y); cx.stroke();
+    cx.fillStyle='#5c5a57'; cx.font='10px system-ui'; cx.textAlign='right';
+    cx.fillText(Math.round(mn+(mx-mn)*i/4),pad.l-4,y+3);
+  }
+  if(scores.length<2) return;
+  const ma=scores.map((v,i,a)=>{const sl=a.slice(Math.max(0,i-2),i+1);return sl.reduce((s,x)=>s+x,0)/sl.length;});
+  const px=i=>pad.l+(i/(scores.length-1))*pw;
+  const py=v=>pad.t+ph*(1-(v-mn)/(mx-mn));
+  const g=cx.createLinearGradient(0,pad.t,0,H);
+  g.addColorStop(0,'rgba(232,82,26,.25)'); g.addColorStop(1,'rgba(232,82,26,.02)');
+  cx.beginPath(); cx.moveTo(px(0),py(scores[0]));
+  scores.forEach((s,i)=>{if(i>0)cx.lineTo(px(i),py(s));});
+  cx.lineTo(px(scores.length-1),H); cx.lineTo(px(0),H); cx.closePath();
+  cx.fillStyle=g; cx.fill();
+  cx.beginPath(); cx.moveTo(px(0),py(scores[0]));
+  scores.forEach((s,i)=>{if(i>0)cx.lineTo(px(i),py(s));});
+  cx.strokeStyle='#E8521A'; cx.lineWidth=1.5; cx.stroke();
+  cx.beginPath(); cx.moveTo(px(0),py(ma[0]));
+  ma.forEach((s,i)=>{if(i>0)cx.lineTo(px(i),py(s));});
+  cx.strokeStyle='rgba(232,162,26,.5)'; cx.lineWidth=1; cx.setLineDash([4,4]); cx.stroke(); cx.setLineDash([]);
+  scores.forEach((s,i)=>{
+    cx.beginPath(); cx.arc(px(i),py(s),3.5,0,Math.PI*2);
+    cx.fillStyle='#E8521A'; cx.fill();
+    cx.strokeStyle='#0d0e10'; cx.lineWidth=1.5; cx.stroke();
+  });
+  cx.fillStyle='#5c5a57'; cx.font='10px system-ui'; cx.textAlign='center';
+  cx.fillText(sessions[0].date?.slice(5)||'',px(0),H-4);
+  cx.fillText(sessions[sessions.length-1].date?.slice(5)||'',px(scores.length-1),H-4);
+}
+
+// =================== NEW SESSION ===================
+function initNewSession(){
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  shots=[]; drawTarget(); updatePistolSelect();
+  const defaults={fatigue:5,focus:5,stress:3,posture:5,ressenti:5,stress2:3,distraction:3,regularite:5,souffle:5};
+  Object.entries(defaults).forEach(([id,val])=>{
+    const el=document.getElementById('f-'+id);
+    if(el){el.value=val;updateSlider(el,'v-'+id);}
+  });
+  currentTempo='bon';
+  document.querySelectorAll('.tempo-btn').forEach(b=>{ b.classList.toggle('active',b.dataset.val==='bon'); });
+}
+function updatePistolSelect(){
+  const sel=document.getElementById('f-pistol');
+  sel.innerHTML='<option value="">Sélectionner…</option>'+DB.equipment.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+}
+function updateSlider(el,valId){
+  document.getElementById(valId).textContent=el.value;
+  el.style.setProperty('--pct',((el.value-el.min)/(el.max-el.min)*100)+'%');
+}
+document.querySelectorAll('input[type=range]').forEach(el=>{
+  const vid=el.id.replace('f-','v-');
+  if(document.getElementById(vid)) updateSlider(el,vid);
+});
+
+function saveSession(){
+  const date=document.getElementById('f-date').value;
+  if(!date){showToast('Sélectionnez une date');return;}
+  const g=id=>document.getElementById(id)?.value;
+  const gi=id=>parseInt(document.getElementById(id)?.value)||0;
+  const session={
+    id:Date.now().toString(), date,
+    duration:g('f-duration'), location:g('f-location'), type:g('f-type'), pistol:g('f-pistol'),
+    shots:shots.map(s=>({dx:Math.round(s.dx),dy:Math.round(s.dy),score:s.score})),
+    totalScore:shots.reduce((t,s)=>t+s.score,0), shotsCount:shots.length,
+    physical:{hr:g('f-hr'),fatigue:gi('f-fatigue'),sleep:g('f-sleep'),posture:gi('f-posture')},
+    mental:{focus:gi('f-focus'),stress:gi('f-stress'),routine:g('f-routine')},
+    conditions:{light:g('f-light'),temp:g('f-temp')},
+    material:{pellets:g('f-pellets'),pressure:g('f-pressure'),count:g('f-count'),sight:g('f-sight')},
+    bilan:{
+      ressenti:gi('f-ressenti'), stress2:gi('f-stress2'), distraction:gi('f-distraction'),
+      regularite:gi('f-regularite'), souffle:gi('f-souffle'), tempo:currentTempo
+    },
+    notes:g('f-notes'),
+  };
+  const sessions=DB.sessions; sessions.push(session); DB.sessions=sessions;
+  ['f-duration','f-location','f-notes','f-hr','f-temp','f-pellets','f-pressure','f-count','f-hr2'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  shots=[]; drawTarget();
+  showToast('Séance enregistrée ✓');
+  setTimeout(()=>showScreen('s-home'),800);
+}
+
+// =================== MORE / DATA ===================
+function renderMore(){
+  const sessions=DB.sessions, equip=DB.equipment;
+  const totalShots=sessions.reduce((t,s)=>t+(parseInt(s.shotsCount)||0),0);
+  document.getElementById('data-stats-block').innerHTML=`
+    <div class="data-stats">
+      <div style="display:flex;gap:16px;">
+        <div style="text-align:center;flex:1;"><div style="font-size:20px;font-weight:700;color:var(--acc);">${sessions.length}</div><div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Séances</div></div>
+        <div style="text-align:center;flex:1;"><div style="font-size:20px;font-weight:700;color:var(--acc);">${totalShots}</div><div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Tirs</div></div>
+        <div style="text-align:center;flex:1;"><div style="font-size:20px;font-weight:700;color:var(--acc);">${equip.length}</div><div style="font-size:10px;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Pistolets</div></div>
+      </div>
+    </div>`;
+}
+
+function exportData(){
+  const data={version:'1.1',exportDate:new Date().toISOString(),sessions:DB.sessions,equipment:DB.equipment};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`tirpro-export-${new Date().toISOString().split('T')[0]}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Export téléchargé ✓');
+}
+
+function importData(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.sessions||!data.equipment) throw new Error('Format invalide');
+      showConfirm(
+        'Importer des données',
+        `Importer ${data.sessions.length} séance(s) et ${data.equipment.length} pistolet(s) ?\n\nAttention : cela remplacera vos données actuelles.`,
+        ()=>{
+          DB.sessions=data.sessions; DB.equipment=data.equipment;
+          showToast(`Import réussi : ${data.sessions.length} séances ✓`);
+          renderMore();
+        }
+      );
+    }catch(err){ showToast('Fichier invalide ou corrompu'); }
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+function confirmResetData(){
+  showConfirm('Effacer toutes les données','Cette action est irréversible. Toutes vos séances et votre matériel seront supprimés définitivement.',()=>{
+    DB.sessions=[]; DB.equipment=[];
+    showToast('Données effacées'); renderMore(); renderHome();
+  });
+}
+
+// =================== CONFIRM DIALOG ===================
+let confirmCallback=null;
+function showConfirm(title,msg,cb){
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  confirmCallback=cb;
+  document.getElementById('confirm-overlay').classList.add('show');
+}
+function closeConfirm(){ document.getElementById('confirm-overlay').classList.remove('show'); confirmCallback=null; }
+document.getElementById('confirm-ok').onclick=()=>{ closeConfirm(); if(confirmCallback) confirmCallback(); };
+
+// =================== UTILS ===================
+function formatDate(d){ if(!d) return '—'; return new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
+function openLink(url){ window.open(url,'_blank'); }
+function copyBTC(){
+  const addr=document.getElementById('btc-address').textContent;
+  navigator.clipboard.writeText(addr).then(()=>showToast('Adresse BTC copiée ✓')).catch(()=>showToast('Copiez manuellement l\'adresse'));
+}
+
+// =================== INIT ===================
+function init(){
+  drawTarget();
+  renderHome();
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(DB.sessions.length===0&&DB.equipment.length===0){
+    DB.equipment=[{id:'eq1',name:'FWB P8X',brand:'Feinwerkbau',caliber:'4.5mm',propulsion:'pcp',year:'2022',notes:'Détente réglée 480g'}];
+    const dates=['2025-03-10','2025-03-17','2025-03-24','2025-04-03','2025-04-10','2025-04-17','2025-04-24','2025-05-05','2025-05-14','2025-05-22'];
+    const sc=[87,89,85,92,90,94,91,96,93,97];
+    DB.sessions=dates.map((date,i)=>({
+      id:'demo'+i,date,duration:'60',location:'Stand municipal',type:'entrainement',pistol:'eq1',
+      shots:[],totalScore:sc[i],shotsCount:10,
+      physical:{hr:62,fatigue:3+Math.round(Math.random()*2),sleep:7+Math.random(),posture:7+Math.round(Math.random()*2)},
+      mental:{focus:7+Math.round(Math.random()*3),stress:2+Math.round(Math.random()*3),routine:'oui'},
+      conditions:{light:'artificielle',temp:20},
+      material:{pellets:'RWS Meisterkugeln',pressure:200,count:60,sight:'non'},
+      bilan:{ressenti:6+Math.round(Math.random()*4),stress2:2+Math.round(Math.random()*3),distraction:2+Math.round(Math.random()*3),regularite:6+Math.round(Math.random()*4),souffle:6+Math.round(Math.random()*4),tempo:'bon'},
+      notes:''
+    }));
+    renderHome();
+  }
+}
+init();
+</script>
+</body>
+</html>
