@@ -1,4 +1,5 @@
-const CACHE = 'tirpro-v1.1'; // Pense à changer la version ici à chaque grosse mise à jour
+const CACHE = 'tirpro-v1.2'; // Passe de v1 ou v1.1 à v1.2
+
 const ASSETS = [
   './',
   './index.html',
