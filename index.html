@@ -1081,28 +1081,14 @@ function copyBTC(){
 function init(){
   drawTarget();
   renderHome();
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
-    .then(reg => console.log('SW enregistré!', reg.scope))
-    .catch(err => console.error('Erreur SW:', err));
-}
-
-  if(DB.sessions.length===0&&DB.equipment.length===0){
-    DB.equipment=[{id:'eq1',name:'FWB P8X',brand:'Feinwerkbau',caliber:'4.5mm',propulsion:'pcp',year:'2022',notes:'Détente réglée 480g'}];
-    const dates=['2025-03-10','2025-03-17','2025-03-24','2025-04-03','2025-04-10','2025-04-17','2025-04-24','2025-05-05','2025-05-14','2025-05-22'];
-    const sc=[87,89,85,92,90,94,91,96,93,97];
-    DB.sessions=dates.map((date,i)=>({
-      id:'demo'+i,date,duration:'60',location:'Stand municipal',type:'entrainement',pistol:'eq1',
-      shots:[],totalScore:sc[i],shotsCount:10,
-      physical:{hr:62,fatigue:3+Math.round(Math.random()*2),sleep:7+Math.random(),posture:7+Math.round(Math.random()*2)},
-      mental:{focus:7+Math.round(Math.random()*3),stress:2+Math.round(Math.random()*3),routine:'oui'},
-      conditions:{light:'artificielle',temp:20},
-      material:{pellets:'RWS Meisterkugeln',pressure:200,count:60,sight:'non'},
-      bilan:{ressenti:6+Math.round(Math.random()*4),stress2:2+Math.round(Math.random()*3),distraction:2+Math.round(Math.random()*3),regularite:6+Math.round(Math.random()*4),souffle:6+Math.round(Math.random()*4),tempo:'bon'},
-      notes:''
-    }));
-    renderHome();
+  if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('SW enregistré!'))
+      .catch(err => console.error('Erreur SW:', err));
   }
+  
+  // Le bloc de génération des fausses données a été supprimé.
+  // L'application démarrera désormais complètement vide.
 }
 init();
 </script>
