@@ -24,7 +24,7 @@ button { font-family:inherit; cursor:pointer; border:none; }
 input,select,textarea { font-family:inherit; }
 .screen { display:none; flex-direction:column; min-height:100dvh; padding-bottom:84px; }
 .screen.active { display:flex; }
-
+ 
 nav {
   position:fixed; bottom:0; left:0; right:0; z-index:100;
   background:rgba(13,14,16,0.96); backdrop-filter:blur(16px);
@@ -38,7 +38,7 @@ nav {
 }
 .nav-btn.active { color:var(--acc); }
 .nav-btn svg { width:20px; height:20px; stroke-width:1.5; }
-
+ 
 .header {
   padding:18px 20px 10px; display:flex; align-items:center; justify-content:space-between;
   position:sticky; top:0; z-index:10;
@@ -48,19 +48,19 @@ nav {
 .logo-target svg { width:30px; height:30px; }
 h1.app-title { font-size:20px; font-weight:600; letter-spacing:-.3px; }
 h1.app-title span { color:var(--acc); }
-
+ 
 .card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin:0 16px 12px; }
 .card-label { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; }
 .card-value { font-size:28px; font-weight:700; letter-spacing:-1px; }
 .card-sub { font-size:13px; color:var(--txt2); margin-top:4px; }
-
+ 
 .stats-row { display:flex; gap:10px; padding:0 16px 12px; }
 .stat-card { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:12px 10px; text-align:center; }
 .stat-val { font-size:20px; font-weight:700; color:var(--acc); letter-spacing:-.5px; }
 .stat-lbl { font-size:9px; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-top:2px; }
-
+ 
 .section-title { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:1px; padding:4px 20px 10px; font-weight:500; }
-
+ 
 .session-item { display:flex; align-items:center; gap:14px; padding:13px 20px; border-bottom:1px solid var(--border); transition:background .15s; cursor:pointer; }
 .session-item:hover { background:var(--bg2); }
 .session-dot { width:40px; height:40px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-weight:700; font-size:13px; }
@@ -72,7 +72,7 @@ h1.app-title span { color:var(--acc); }
 .tag.green { background:rgba(46,201,122,.12); color:var(--green); }
 .tag.amber { background:rgba(232,162,26,.12); color:var(--amber); }
 .tag.red { background:rgba(232,76,76,.12); color:var(--red); }
-
+ 
 .form-section { padding:0 16px 10px; }
 .form-label { font-size:12px; color:var(--txt2); margin-bottom:6px; display:block; letter-spacing:.3px; }
 .form-input { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:11px 13px; color:var(--txt); font-size:15px; outline:none; transition:border-color .2s; }
@@ -80,56 +80,56 @@ h1.app-title span { color:var(--acc); }
 select.form-input option { background:var(--bg3); }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .form-group { margin-bottom:13px; }
-
+ 
 .slider-wrap { display:flex; align-items:center; gap:10px; }
 input[type=range] { flex:1; height:4px; border-radius:2px; outline:none; cursor:pointer; -webkit-appearance:none; appearance:none; background:linear-gradient(to right,var(--acc) var(--pct,50%),var(--bg4) var(--pct,50%)); }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--acc); border:3px solid var(--bg); }
-
+ 
 .target-wrap { display:flex; flex-direction:column; align-items:center; padding:12px; gap:10px; }
 #targetCanvas { border-radius:50%; cursor:crosshair; touch-action:none; box-shadow:0 0 0 1px var(--border),0 0 40px rgba(232,82,26,.08); }
 .target-controls { display:flex; gap:10px; }
 .btn-sm { padding:8px 14px; border-radius:8px; font-size:13px; font-weight:500; background:var(--bg4); color:var(--txt2); border:1px solid var(--border); transition:all .2s; }
 .btn-sm:hover { border-color:var(--acc); color:var(--acc); }
-
+ 
 .btn-primary { width:calc(100% - 32px); margin:8px 16px 14px; background:var(--acc); color:#fff; font-size:16px; font-weight:600; padding:15px; border-radius:12px; letter-spacing:.2px; transition:opacity .2s,transform .1s; }
 .btn-primary:active { transform:scale(.98); opacity:.9; }
 .btn-secondary { width:calc(100% - 32px); margin:0 16px 12px; background:var(--bg3); color:var(--txt2); font-size:15px; font-weight:500; padding:13px; border-radius:12px; border:1px solid var(--border); }
-
+ 
 .chart-wrap { padding:0 16px 12px; }
 #progressChart { width:100%; border-radius:var(--r); }
-
+ 
 .equip-item { display:flex; align-items:center; gap:14px; padding:13px 20px; border-bottom:1px solid var(--border); }
 .equip-icon { width:38px; height:38px; border-radius:10px; background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
 .equip-info { flex:1; }
 .equip-name { font-size:15px; font-weight:500; }
 .equip-detail { font-size:12px; color:var(--txt2); margin-top:2px; }
-
+ 
 .badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; padding:3px 9px; border-radius:20px; font-weight:500; }
 .badge-green { background:rgba(46,201,122,.12); color:var(--green); }
 .badge-amber { background:rgba(232,162,26,.12); color:var(--amber); }
-
+ 
 .toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--bg3); border:1px solid var(--border); color:var(--txt); padding:10px 20px; border-radius:30px; font-size:14px; z-index:999; opacity:0; transition:all .3s; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
+ 
 .shots-count { font-size:12px; color:var(--txt2); }
 .shots-score { font-size:22px; font-weight:700; color:var(--acc); }
 .shots-avg { font-size:11px; color:var(--txt3); }
-
+ 
 .empty-state { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:40px; color:var(--txt3); text-align:center; }
 .empty-state svg { opacity:.3; }
 .empty-state p { font-size:14px; line-height:1.6; }
-
+ 
 .analysis-row { display:flex; gap:10px; padding:0 16px 12px; }
 .analysis-card { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:14px; }
 .analysis-card .title { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
 .trend-up { color:var(--green); font-size:18px; font-weight:700; }
 .trend-down { color:var(--red); font-size:18px; font-weight:700; }
 .trend-neutral { color:var(--amber); font-size:18px; font-weight:700; }
-
+ 
 /* BILAN A CHAUD */
 .bilan-card { background:linear-gradient(135deg,rgba(232,82,26,.08),rgba(232,82,26,.03)); border:1px solid rgba(232,82,26,.2); border-radius:12px; padding:16px; margin:0 16px 12px; }
 .bilan-title { font-size:13px; font-weight:600; color:var(--acc); margin-bottom:14px; display:flex; align-items:center; gap:7px; }
-
+ 
 /* MORE SCREEN */
 .more-section { padding:16px 16px 6px; }
 .more-section-title { font-size:11px; color:var(--txt3); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; font-weight:500; }
@@ -139,7 +139,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
 .more-info { flex:1; }
 .more-name { font-size:15px; font-weight:500; }
 .more-desc { font-size:12px; color:var(--txt2); margin-top:2px; }
-
+ 
 /* SUPPORT CARD */
 .support-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:16px; margin-bottom:10px; }
 .support-btn { display:flex; align-items:center; gap:12px; padding:13px 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg3); width:100%; margin-bottom:10px; transition:border-color .2s,background .2s; cursor:pointer; }
@@ -148,11 +148,11 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
 .support-btn-info { text-align:left; flex:1; }
 .support-btn-name { font-size:14px; font-weight:600; color:var(--txt); }
 .support-btn-desc { font-size:12px; color:var(--txt2); margin-top:1px; }
-
+ 
 .btc-box { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-top:10px; }
 .btc-address { font-size:10px; color:var(--txt2); word-break:break-all; line-height:1.5; font-family:monospace; }
 .btc-copy { font-size:11px; color:var(--acc); margin-top:6px; cursor:pointer; background:none; border:none; font-family:inherit; }
-
+ 
 /* DATA ACTIONS */
 .data-action { display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); margin-bottom:10px; cursor:pointer; transition:border-color .2s; }
 .data-action:hover { border-color:var(--acc); }
@@ -161,7 +161,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
 .data-action-name { font-size:14px; font-weight:500; }
 .data-action-desc { font-size:12px; color:var(--txt2); margin-top:2px; }
 .data-stats { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r); padding:14px 16px; margin-bottom:10px; }
-
+ 
 /* CONFIRM DIALOG */
 .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:200; display:none; align-items:flex-end; justify-content:center; padding-bottom:max(20px,env(safe-area-inset-bottom)); }
 .confirm-overlay.show { display:flex; }
@@ -174,9 +174,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
 </style>
 </head>
 <body>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <!-- CONFIRM DIALOG -->
 <div class="confirm-overlay" id="confirm-overlay">
   <div class="confirm-box">
@@ -188,7 +188,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
     </div>
   </div>
 </div>
-
+ 
 <!-- =================== HOME =================== -->
 <div class="screen active" id="s-home">
   <div class="header">
@@ -209,7 +209,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
   <div id="home-stats"></div>
   <div id="home-recent"></div>
 </div>
-
+ 
 <!-- =================== NEW SESSION =================== -->
 <div class="screen" id="s-new">
   <div class="header">
@@ -217,7 +217,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
     <span style="font-size:16px;font-weight:600;">Nouvelle séance</span>
     <div style="width:60px;"></div>
   </div>
-
+ 
   <div class="section-title">Informations générales</div>
   <div class="form-section">
     <div class="form-row">
@@ -252,7 +252,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </div>
     </div>
   </div>
-
+ 
   <div class="section-title">État physique</div>
   <div class="form-section">
     <div class="form-group">
@@ -286,7 +286,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </div>
     </div>
   </div>
-
+ 
   <div class="section-title">État mental pré-séance</div>
   <div class="form-section">
     <div class="form-group">
@@ -314,7 +314,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </select>
     </div>
   </div>
-
+ 
   <div class="section-title">Conditions extérieures</div>
   <div class="form-section">
     <div class="form-row">
@@ -332,7 +332,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </div>
     </div>
   </div>
-
+ 
   <div class="section-title">Matériel</div>
   <div class="form-section">
     <div class="form-group">
@@ -359,7 +359,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </select>
     </div>
   </div>
-
+ 
   <div class="section-title">Résultats sur cible</div>
   <div class="target-wrap">
     <div style="display:flex;gap:20px;align-items:center;">
@@ -376,7 +376,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
     </div>
     <div style="font-size:11px;color:var(--txt3);text-align:center;">Appuyez sur la cible pour placer les impacts</div>
   </div>
-
+ 
   <!-- ===== BILAN À CHAUD ===== -->
   <div class="section-title" style="margin-top:4px;">Bilan à chaud</div>
   <div style="padding:0 16px 4px;">
@@ -435,7 +435,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </div>
     </div>
   </div>
-
+ 
   <div class="section-title">Notes & observations</div>
   <div class="form-section">
     <div class="form-group">
@@ -443,11 +443,11 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       <textarea class="form-input" id="f-notes" rows="4" style="resize:vertical;" placeholder="Appui gâchette trop brusque en série 3, travail sur le souffle…"></textarea>
     </div>
   </div>
-
+ 
   <button class="btn-primary" onclick="saveSession()">Enregistrer la séance</button>
   <div style="height:8px;"></div>
 </div>
-
+ 
 <!-- =================== HISTORY =================== -->
 <div class="screen" id="s-history">
   <div class="header">
@@ -455,7 +455,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
   </div>
   <div id="history-list"></div>
 </div>
-
+ 
 <!-- =================== EQUIPMENT =================== -->
 <div class="screen" id="s-equip">
   <div class="header">
@@ -506,7 +506,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
     <button class="btn-secondary" onclick="cancelAddEquip()">Annuler</button>
   </div>
 </div>
-
+ 
 <!-- =================== ANALYSIS =================== -->
 <div class="screen" id="s-analysis">
   <div class="header">
@@ -514,13 +514,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
   </div>
   <div id="analysis-content"></div>
 </div>
-
+ 
 <!-- =================== MORE =================== -->
 <div class="screen" id="s-more">
   <div class="header">
     <h1 class="app-title">Plus</h1>
   </div>
-
+ 
   <!-- SAUVEGARDE -->
   <div class="more-section">
     <div class="more-section-title">Données</div>
@@ -554,13 +554,13 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </div>
     </div>
   </div>
-
+ 
   <!-- SOUTIEN -->
   <div class="more-section" style="margin-top:4px;">
     <div class="more-section-title">Soutenir le projet</div>
     <div class="support-card">
       <p style="font-size:13px;color:var(--txt2);margin-bottom:14px;line-height:1.6;">TirPro est gratuit et sans publicité. Si l'application vous aide à progresser, vous pouvez soutenir son développement :</p>
-
+ 
       <button class="support-btn" onclick="openLink('https://ko-fi.com/rekojel')">
         <span class="support-btn-icon">☕</span>
         <div class="support-btn-info">
@@ -569,7 +569,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
         </div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--txt3)" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
       </button>
-
+ 
       <div style="font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;margin-top:4px;">Bitcoin</div>
       <div class="btc-box">
         <div style="font-size:11px;color:var(--txt2);margin-bottom:6px;">Adresse Bitcoin (Bitstack)</div>
@@ -578,7 +578,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
       </div>
     </div>
   </div>
-
+ 
   <!-- APP INFO -->
   <div class="more-section" style="margin-top:4px;">
     <div class="more-section-title">Application</div>
@@ -597,7 +597,7 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
   </div>
   <div style="height:16px;"></div>
 </div>
-
+ 
 <!-- =================== NAV =================== -->
 <nav>
   <button class="nav-btn active" id="nav-home" onclick="showScreen('s-home')">
@@ -621,12 +621,12 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:20px; h
     Plus
   </button>
 </nav>
-
+ 
 <style>
 .tempo-btn { flex:1; padding:9px 4px; border-radius:8px; font-size:11px; font-weight:500; background:var(--bg4); color:var(--txt2); border:1px solid var(--border); cursor:pointer; transition:all .2s; text-align:center; }
 .tempo-btn.active { background:var(--acc-dim); border-color:var(--acc); color:var(--acc); }
 </style>
-
+ 
 <script>
 // =================== DATA STORE ===================
 const DB = {
@@ -635,11 +635,11 @@ const DB = {
   get equipment() { return JSON.parse(localStorage.getItem('tp_equipment')||'[]'); },
   set equipment(v) { localStorage.setItem('tp_equipment',JSON.stringify(v)); },
 };
-
+ 
 // =================== SCREENS ===================
 const screens = ['s-home','s-new','s-history','s-equip','s-analysis','s-more'];
 const navMap = {'s-home':'nav-home','s-history':'nav-history','s-equip':'nav-equip','s-analysis':'nav-analysis','s-more':'nav-more'};
-
+ 
 function showScreen(id) {
   screens.forEach(s => document.getElementById(s).classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -653,14 +653,14 @@ function showScreen(id) {
   if (id==='s-more') renderMore();
   if (id==='s-new') initNewSession();
 }
-
+ 
 // =================== TARGET CANVAS ===================
 let shots = [];
 const canvas = document.getElementById('targetCanvas');
 const ctx = canvas.getContext('2d');
 const W=210,H=210,CX=105,CY=105,R=96;
 const ZONES=[{r:1.0,score:1},{r:0.9,score:2},{r:0.78,score:3},{r:0.66,score:4},{r:0.54,score:5},{r:0.42,score:6},{r:0.30,score:7},{r:0.20,score:8},{r:0.12,score:9},{r:0.06,score:10}];
-
+ 
 function getScore(dx,dy){
   const dist=Math.sqrt(dx*dx+dy*dy)/R;
   for(let i=ZONES.length-1;i>=0;i--){ if(dist<=ZONES[i].r) return ZONES[i].score; }
@@ -710,12 +710,23 @@ function updateShotStats(){
 function getCanvasPos(e){
   const rect=canvas.getBoundingClientRect();
   const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
-  const cx=e.touches?e.touches[0].clientX:e.clientX;
-  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  // touchend : les doigts ont quitté l'écran → e.touches est vide, utiliser changedTouches
+  const touch=e.changedTouches?e.changedTouches[0]:null;
+  const cx=touch?touch.clientX:e.clientX;
+  const cy=touch?touch.clientY:e.clientY;
   return {x:(cx-rect.left)*sx,y:(cy-rect.top)*sy};
 }
-canvas.addEventListener('click',e=>addShot(getCanvasPos(e)));
-canvas.addEventListener('touchend',e=>{e.preventDefault();addShot(getCanvasPos(e));});
+let lastTouchEnd=0;
+canvas.addEventListener('touchend',e=>{
+  e.preventDefault(); // bloque le click synthétique déclenché par le navigateur mobile
+  lastTouchEnd=Date.now();
+  addShot(getCanvasPos(e));
+},{passive:false});
+canvas.addEventListener('click',e=>{
+  // ignorer le click fantôme généré après touchend (< 400ms)
+  if(Date.now()-lastTouchEnd<400) return;
+  addShot(getCanvasPos(e));
+});
 function addShot(pos){
   const dx=pos.x-CX,dy=pos.y-CY;
   if(Math.sqrt(dx*dx+dy*dy)>R+10) return;
@@ -723,7 +734,7 @@ function addShot(pos){
 }
 function undoShot(){ shots.pop(); drawTarget(); }
 function clearTarget(){ shots=[]; drawTarget(); }
-
+ 
 // =================== TEMPO ==================
 let currentTempo = 'bon';
 function selectTempo(btn){
@@ -731,7 +742,7 @@ function selectTempo(btn){
   btn.classList.add('active');
   currentTempo = btn.dataset.val;
 }
-
+ 
 // =================== HOME ===================
 function renderHome(){
   const sessions=DB.sessions;
@@ -768,7 +779,7 @@ function renderHome(){
   const recent=[...sessions].reverse().slice(0,5);
   recentEl.innerHTML=`<div class="section-title">Séances récentes</div>`+recent.map(s=>sessionItem(s)).join('');
 }
-
+ 
 // =================== HISTORY ===================
 function renderHistory(){
   const sessions=DB.sessions;
@@ -796,7 +807,7 @@ function sessionItem(s){
     </div>
   </div>`;
 }
-
+ 
 // =================== EQUIPMENT ===================
 function renderEquip(){
   const equip=DB.equipment;
@@ -828,7 +839,7 @@ function saveEquip(){
   ['eq-name','eq-brand','eq-notes','eq-year'].forEach(id=>document.getElementById(id).value='');
   cancelAddEquip(); showToast('Pistolet ajouté ✓');
 }
-
+ 
 // =================== ANALYSIS ===================
 function renderAnalysis(){
   const sessions=DB.sessions;
@@ -839,7 +850,7 @@ function renderAnalysis(){
   const avgLast5=Math.round(last5.reduce((a,b)=>a+b,0)/last5.length);
   const allAvg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
   const trend=scores[scores.length-1]-scores[0];
-
+ 
   // Corrélations bilan à chaud
   const withBilan=sessions.filter(s=>s.bilan&&s.totalScore);
   const bonRessenti=withBilan.filter(s=>s.bilan.ressenti>=8);
@@ -850,15 +861,15 @@ function renderAnalysis(){
   const avgBonSouffle=bonSouffle.length?Math.round(bonSouffle.reduce((a,b)=>a+b.totalScore,0)/bonSouffle.length):0;
   const bonRegularite=withBilan.filter(s=>s.bilan.regularite>=8);
   const avgBonReg=bonRegularite.length?Math.round(bonRegularite.reduce((a,b)=>a+b.totalScore,0)/bonRegularite.length):0;
-
+ 
   const withSleep=sessions.filter(s=>s.physical?.sleep&&s.totalScore);
   const goodSleep=withSleep.filter(s=>s.physical.sleep>=7.5);
   const avgGoodSleep=goodSleep.length?Math.round(goodSleep.reduce((a,b)=>a+b.totalScore,0)/goodSleep.length):0;
-
+ 
   const paired=sessions.filter(s=>s.mental?.focus&&s.totalScore);
   const bestFocus=paired.filter(p=>p.mental.focus>=8);
   const avgFocusScore=bestFocus.length?Math.round(bestFocus.reduce((a,b)=>a+b.totalScore,0)/bestFocus.length):0;
-
+ 
   el.innerHTML=`
     <div class="card" style="margin:14px 16px 8px;">
       <div class="card-label">Progression globale</div>
@@ -877,23 +888,23 @@ function renderAnalysis(){
         <div style="font-size:11px;color:var(--txt3);">${avgLast5>=allAvg?'En progression':'En baisse'}</div>
       </div>
     </div>
-
+ 
     <div class="section-title">Corrélations bilan à chaud</div>
     ${avgBonRessenti?`<div class="card"><div class="card-label">⭐ Bon ressenti (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--green);">Score moy. ${avgBonRessenti} pts</div><div class="card-sub">Sur ${bonRessenti.length} séance(s) très bien ressenties</div></div>`:''}
     ${avgFaibleStress?`<div class="card"><div class="card-label">🧘 Stress faible (≤3/10)</div><div style="font-size:18px;font-weight:700;color:var(--green);">Score moy. ${avgFaibleStress} pts</div><div class="card-sub">Sur ${faibleStress.length} séance(s) calmes</div></div>`:''}
     ${avgBonSouffle?`<div class="card"><div class="card-label">💨 Souffle maîtrisé (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--blue);">Score moy. ${avgBonSouffle} pts</div><div class="card-sub">Sur ${bonSouffle.length} séance(s)</div></div>`:''}
     ${avgBonReg?`<div class="card"><div class="card-label">🔁 Tirs réguliers (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--blue);">Score moy. ${avgBonReg} pts</div><div class="card-sub">Sur ${bonRegularite.length} séance(s)</div></div>`:''}
-
+ 
     <div class="section-title">Corrélations physiques</div>
     ${avgFocusScore?`<div class="card"><div class="card-label">🎯 Focus élevé (≥8/10)</div><div style="font-size:18px;font-weight:700;color:var(--green);">+${Math.max(0,avgFocusScore-allAvg)} pts</div><div class="card-sub">Score moyen avec focus élevé : ${avgFocusScore} pts</div></div>`:''}
     ${avgGoodSleep?`<div class="card"><div class="card-label">😴 Sommeil ≥ 7.5h</div><div style="font-size:18px;font-weight:700;color:var(--green);">Score moy. ${avgGoodSleep} pts</div><div class="card-sub">Sur ${goodSleep.length} séance(s) bien reposé</div></div>`:''}
-
+ 
     <div class="section-title">Courbe de progression</div>
     <div class="chart-wrap"><canvas id="progressChart" height="160"></canvas></div>`;
-
+ 
   drawProgressChart(sessions);
 }
-
+ 
 function drawProgressChart(sessions){
   const c=document.getElementById('progressChart');
   if(!c) return;
@@ -938,7 +949,7 @@ function drawProgressChart(sessions){
   cx.fillText(sessions[0].date?.slice(5)||'',px(0),H-4);
   cx.fillText(sessions[sessions.length-1].date?.slice(5)||'',px(scores.length-1),H-4);
 }
-
+ 
 // =================== NEW SESSION ===================
 function initNewSession(){
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
@@ -963,7 +974,7 @@ document.querySelectorAll('input[type=range]').forEach(el=>{
   const vid=el.id.replace('f-','v-');
   if(document.getElementById(vid)) updateSlider(el,vid);
 });
-
+ 
 function saveSession(){
   const date=document.getElementById('f-date').value;
   if(!date){showToast('Sélectionnez une date');return;}
@@ -992,7 +1003,7 @@ function saveSession(){
   showToast('Séance enregistrée ✓');
   setTimeout(()=>showScreen('s-home'),800);
 }
-
+ 
 // =================== MORE / DATA ===================
 function renderMore(){
   const sessions=DB.sessions, equip=DB.equipment;
@@ -1006,7 +1017,7 @@ function renderMore(){
       </div>
     </div>`;
 }
-
+ 
 function exportData(){
   const data={version:'1.1',exportDate:new Date().toISOString(),sessions:DB.sessions,equipment:DB.equipment};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
@@ -1016,7 +1027,7 @@ function exportData(){
   a.click(); URL.revokeObjectURL(url);
   showToast('Export téléchargé ✓');
 }
-
+ 
 function importData(input){
   const file=input.files[0]; if(!file) return;
   const reader=new FileReader();
@@ -1038,14 +1049,14 @@ function importData(input){
   reader.readAsText(file);
   input.value='';
 }
-
+ 
 function confirmResetData(){
   showConfirm('Effacer toutes les données','Cette action est irréversible. Toutes vos séances et votre matériel seront supprimés définitivement.',()=>{
     DB.sessions=[]; DB.equipment=[];
     showToast('Données effacées'); renderMore(); renderHome();
   });
 }
-
+ 
 // =================== CONFIRM DIALOG ===================
 let confirmCallback=null;
 function showConfirm(title,msg,cb){
@@ -1056,7 +1067,7 @@ function showConfirm(title,msg,cb){
 }
 function closeConfirm(){ document.getElementById('confirm-overlay').classList.remove('show'); confirmCallback=null; }
 document.getElementById('confirm-ok').onclick=()=>{ closeConfirm(); if(confirmCallback) confirmCallback(); };
-
+ 
 // =================== UTILS ===================
 function formatDate(d){ if(!d) return '—'; return new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}); }
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
@@ -1065,7 +1076,7 @@ function copyBTC(){
   const addr=document.getElementById('btc-address').textContent;
   navigator.clipboard.writeText(addr).then(()=>showToast('Adresse BTC copiée ✓')).catch(()=>showToast('Copiez manuellement l\'adresse'));
 }
-
+ 
 // =================== INIT ===================
 function init(){
   drawTarget();
