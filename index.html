@@ -3,15 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#C8102E">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TirPro">
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>TirPro — Tir de Précision 10m</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -375,7 +372,7 @@ input[type=range]::-webkit-slider-thumb {
   display: flex; align-items: center; gap: 14px;
 }
 .equip-icon { font-size: 2.2rem; flex-shrink: 0; }
-.equip-info { flex: 1; min-width: 0; overflow: hidden; }
+.equip-info { flex: 1; min-width: 0; }
 .equip-name { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .equip-model { font-size: 0.75rem; color: var(--text3); margin-top: 1px; }
 .equip-shots { font-size: 0.7rem; color: var(--text2); margin-top: 6px; }
@@ -563,6 +560,9 @@ input[type=range]::-webkit-slider-thumb {
   <div class="section" style="margin-top:16px">
     <div class="card-title">Séances récentes</div>
     <div id="recentSessions" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div style="margin-top:8px" id="noRecentMsg" style="display:none">
+      <div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">Aucune séance</div><div class="empty-text">Appuyez sur + pour commencer</div></div>
+    </div>
   </div>
   <div class="section" style="margin-top:16px;padding-bottom:8px">
     <div class="card-title">Équipement actif</div>
@@ -701,7 +701,7 @@ input[type=range]::-webkit-slider-thumb {
       <br>📱 PWA — fonctionne hors ligne<br>
       🔒 Données locales — jamais transmises<br>
       🤖 IA — Google Gemini 1.5 Flash<br>
-      <br>Version 2.0 • Juin 2026
+      <br>Version 2.0 • Juin 2025
     </div>
   </div>
 </main>
@@ -1000,13 +1000,13 @@ input[type=range]::-webkit-slider-thumb {
         <div class="form-group">
           <label class="form-label">Tempo de tir</label>
           <div class="tempo-group" id="sTempo">
-            <div class="tempo-btn" onclick="selectTempo(this)">
+            <div class="tempo-btn" onclick="selectTempo(this,'sTempoGroup')">
               <div class="tempo-icon">🐢</div>Lent
             </div>
-            <div class="tempo-btn selected" onclick="selectTempo(this)">
+            <div class="tempo-btn selected" onclick="selectTempo(this,'sTempoGroup')" id="sTempoGroup">
               <div class="tempo-icon">⚡</div>Adapté
             </div>
-            <div class="tempo-btn" onclick="selectTempo(this)">
+            <div class="tempo-btn" onclick="selectTempo(this,'sTempoGroup')">
               <div class="tempo-icon">🚀</div>Rapide
             </div>
           </div>
@@ -1130,7 +1130,6 @@ function initCanvas() {
 
   canvas.addEventListener('click', onCanvasClick);
   canvas.addEventListener('touchstart', onCanvasTouch, { passive: false });
-  canvas.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
 }
 
 function drawTarget() {
@@ -1280,23 +1279,10 @@ function showToast(msg, type = '') {
 function updateRange(el, valId) {
   const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
   el.style.setProperty('--pct', pct + '%');
-  const target = document.getElementById(valId);
-  if (target) target.textContent = el.value;
+  document.getElementById(valId).textContent = el.value;
 }
 function initRanges() {
-  document.querySelectorAll('input[type=range]').forEach(el => {
-    // Map input IDs to their display span IDs (not always id+'Val')
-    const valIdMap = {
-      'sFatigue': 'sFatigueVal',
-      'sConcentration': 'sConcentrationVal',
-      'sStress': 'sStressVal',
-      'sRessentiFinal': 'sRessentiFVal'
-    };
-    const valId = valIdMap[el.id] || (el.id + 'Val');
-    if (document.getElementById(valId)) {
-      updateRange(el, valId);
-    }
-  });
+  document.querySelectorAll('input[type=range]').forEach(el => updateRange(el, el.id + 'Val'));
 }
 
 // ===================== RADIO =====================
@@ -1318,8 +1304,7 @@ function setTargetMode(mode) {
   document.getElementById('modeAI').classList.toggle('active', mode === 'ai');
   document.getElementById('manualTargetSection').style.display = mode === 'manual' ? '' : 'none';
   document.getElementById('aiTargetSection').style.display = mode === 'ai' ? '' : 'none';
-  // Score override visible in AI mode only (manual uses canvas auto-score)
-  document.getElementById('manualScoreOverride').style.display = mode === 'ai' ? '' : 'none';
+  document.getElementById('manualScoreOverride').style.display = mode === 'manual' ? 'none' : '';
 }
 
 // ===================== PHOTO UPLOAD =====================
@@ -1328,12 +1313,23 @@ function handlePhotoUpload(e) {
   if (!file) return;
 
   const rawType = file.type || '';
-  // Gemini only supports: image/jpeg, image/png, image/webp, image/gif
   const supported = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-  const isSupported = supported.includes(rawType);
 
-  // If unsupported format (HEIC, etc.) or unknown → convert to JPEG via canvas
-  if (!isSupported) {
+  const doRead = (blob, mime) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target.result;
+      currentPhotoBase64 = dataUrl.substring(dataUrl.indexOf(',') + 1);
+      currentPhotoMimeType = mime;
+      document.getElementById('photoPreview').src = dataUrl;
+      document.getElementById('photoPreviewWrap').style.display = '';
+      document.getElementById('aiDropZone').style.display = 'none';
+    };
+    reader.readAsDataURL(blob);
+  };
+
+  if (!supported.includes(rawType)) {
+    // HEIC ou format inconnu → convertir en JPEG via un canvas offscreen
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     img.onload = () => {
@@ -1343,44 +1339,19 @@ function handlePhotoUpload(e) {
       offscreen.getContext('2d').drawImage(img, 0, 0);
       offscreen.toBlob((blob) => {
         URL.revokeObjectURL(objectUrl);
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          currentPhotoBase64 = ev.target.result.split(',')[1];
-          currentPhotoMimeType = 'image/jpeg';
-          document.getElementById('photoPreview').src = ev.target.result;
-          document.getElementById('photoPreviewWrap').style.display = '';
-          document.getElementById('aiDropZone').style.display = 'none';
-          showToast('📷 Image convertie en JPEG', '');
-        };
-        reader.readAsDataURL(blob);
+        doRead(blob, 'image/jpeg');
+        showToast('📷 Image convertie en JPEG', '');
       }, 'image/jpeg', 0.92);
     };
-    img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      showToast('❌ Format image non supporté', 'error');
-    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); showToast('❌ Format non supporté', 'error'); };
     img.src = objectUrl;
-    return;
+  } else {
+    doRead(file, rawType);
   }
-
-  // Supported format: read directly
-  currentPhotoMimeType = rawType;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    const dataUrl = ev.target.result;
-    // Safety: strip prefix cleanly
-    const commaIdx = dataUrl.indexOf(',');
-    currentPhotoBase64 = commaIdx >= 0 ? dataUrl.substring(commaIdx + 1) : dataUrl;
-    document.getElementById('photoPreview').src = dataUrl;
-    document.getElementById('photoPreviewWrap').style.display = '';
-    document.getElementById('aiDropZone').style.display = 'none';
-  };
-  reader.readAsDataURL(file);
 }
 
 function removePhoto() {
   currentPhotoBase64 = null;
-  currentPhotoMimeType = 'image/jpeg';
   document.getElementById('photoPreview').src = '';
   document.getElementById('photoPreviewWrap').style.display = 'none';
   document.getElementById('aiDropZone').style.display = '';
@@ -1429,36 +1400,24 @@ Si tu ne peux pas analyser l'image, mets score_total à 0 et fiabilite à 0.`;
     });
 
     const data = await response.json();
-
-    // Gemini API error (bad key, quota, etc.)
     if (data.error) {
-      const msg = data.error.message || 'Erreur inconnue';
       const code = data.error.code || response.status;
-      console.error('Gemini API error:', data.error);
-      if (code === 400) throw new Error(`Clé API invalide ou format image rejeté (${msg.substring(0,80)})`);
-      if (code === 403) throw new Error('Clé API refusée — vérifiez qu\'elle est activée sur aistudio.google.com');
+      const msg = data.error.message || 'Erreur inconnue';
+      if (code === 400) throw new Error(`Image rejetée par Gemini (format?) — ${msg.substring(0,60)}`);
+      if (code === 403) throw new Error('Clé API refusée — vérifiez aistudio.google.com');
       if (code === 429) throw new Error('Quota Gemini dépassé — réessayez dans quelques minutes');
       throw new Error(`Gemini [${code}]: ${msg.substring(0, 80)}`);
     }
 
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (!text) {
-      // Check for safety block
       const reason = data.candidates?.[0]?.finishReason;
-      if (reason === 'SAFETY') throw new Error('Image bloquée par les filtres de sécurité Gemini');
-      if (reason === 'MAX_TOKENS') throw new Error('Réponse trop longue — réessayez');
-      throw new Error('Gemini n\'a pas retourné de texte. Vérifiez la qualité de la photo.');
+      throw new Error(reason === 'SAFETY' ? 'Image bloquée par Gemini (sécurité)' : 'Gemini n\'a retourné aucun texte — réessayez');
     }
-
-    // Strip markdown code fences if present
     text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-
-    // Extract JSON even if Gemini added commentary around it
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('Réponse Gemini non parseable — réessayez ou améliorez la photo');
-    text = jsonMatch[0];
-
-    aiResult = JSON.parse(text);
+    if (!jsonMatch) throw new Error('Réponse Gemini non parseable — améliorez la photo');
+    aiResult = JSON.parse(jsonMatch[0]);
     renderAIResult(aiResult);
 
     // Auto-fill score
@@ -1518,25 +1477,23 @@ function generateMiniTargetSVG(impacts, centre) {
     const c = i >= 9 ? '#C8102E' : i % 2 === 0 ? '#fff' : '#1a1a1a';
     rings += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" stroke="rgba(128,128,128,0.2)" stroke-width="0.5"/>`;
   }
+  // Center dot
   rings += `<circle cx="${cx}" cy="${cy}" r="${maxR * 0.025}" fill="#C9A84C"/>`;
 
+  // Place impacts based on centre_visee with some spread simulation
+  let impactDots = '';
   const offset = { Centre: [0,0], Haut: [0,-0.25], Bas: [0,0.25], Gauche: [-0.25,0], Droite: [0.25,0],
     'Haut-gauche': [-0.2,-0.2], 'Haut-droite': [0.2,-0.2], 'Bas-gauche': [-0.2,0.2], 'Bas-droite': [0.2,0.2] };
   const off = offset[centre] || [0,0];
   const n = Math.min(impacts.length || 5, 10);
-
-  // Deterministic pseudo-random using score-based seed (no Math.random)
-  let impactDots = '';
   for (let i = 0; i < n; i++) {
+    const angle = (i / n) * Math.PI * 2 + Math.random() * 0.8;
+    const spread = maxR * 0.25 + Math.random() * maxR * 0.1;
+    const ix = cx + off[0] * maxR + Math.cos(angle) * spread * 0.5;
+    const iy = cy + off[1] * maxR + Math.sin(angle) * spread * 0.5;
     const score = impacts[i] || 7;
-    // Deterministic angle and spread based on index and score
-    const angle = (i / n) * Math.PI * 2 + (score * 0.37);
-    const spreadFactor = 1.1 - (score / 10) * 0.7; // high score = tighter group
-    const spread = maxR * 0.18 * spreadFactor;
-    const ix = cx + off[0] * maxR + Math.cos(angle) * spread;
-    const iy = cy + off[1] * maxR + Math.sin(angle) * spread;
     const ic = score >= 9 ? '#C9A84C' : score >= 7 ? '#2ECC71' : score >= 5 ? '#fff' : '#C8102E';
-    impactDots += `<circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="5" fill="${ic}" fill-opacity="0.9" stroke="#fff" stroke-width="1"/>`;
+    impactDots += `<circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="5" fill="${ic}" fill-opacity="0.85" stroke="#fff" stroke-width="1"/>`;
   }
   return `<svg viewBox="0 0 ${size} ${size}" width="120" height="120" style="border-radius:8px;border:1px solid var(--border)">${rings}${impactDots}</svg>`;
 }
@@ -1550,11 +1507,9 @@ function openNewSession() {
   sel.innerHTML = equipment.length
     ? equipment.map(e => `<option value="${e.id}">${e.name} (${e.brand})</option>`).join('')
     : '<option value="">— Aucun pistolet —</option>';
-
-  // Reset target & AI state
+  // Reset
   targetImpacts = [];
   currentPhotoBase64 = null;
-  currentPhotoMimeType = 'image/jpeg';
   aiResult = null;
   document.getElementById('aiResultWrap').style.display = 'none';
   document.getElementById('photoPreviewWrap').style.display = 'none';
@@ -1563,51 +1518,9 @@ function openNewSession() {
   document.getElementById('sScore').value = '';
   document.getElementById('sMeilleur10').value = '';
   document.getElementById('sNotes').value = '';
-  document.getElementById('sDuration').value = '';
-  document.getElementById('sFC').value = '';
-  document.getElementById('sSommeil').value = '';
-  document.getElementById('sTemp').value = '';
-  document.getElementById('sPression').value = '';
-  document.getElementById('sNbTirs').value = '';
-  document.getElementById('sNbCartons').value = '5';
-
-  // Reset sliders to defaults
-  const sliders = [
-    {id:'sFatigue', val:'5', valId:'sFatigueVal'},
-    {id:'sConcentration', val:'7', valId:'sConcentrationVal'},
-    {id:'sStress', val:'3', valId:'sStressVal'},
-    {id:'sRessentiFinal', val:'6', valId:'sRessentiFVal'}
-  ];
-  sliders.forEach(({id, val, valId}) => {
-    const el = document.getElementById(id);
-    if (el) { el.value = val; updateRange(el, valId); }
-  });
-
-  // Reset radio groups to defaults
-  const radioDefaults = {
-    sPosition: 'Debout',
-    sRoutine: 'Partielle',
-    sStressFinal: 'Calme',
-    sDistractions: 'Aucune',
-    sRegularite: 'Correct',
-    sSouffle: 'Maîtrisé'
-  };
-  Object.entries(radioDefaults).forEach(([groupId, defaultVal]) => {
-    const group = document.getElementById(groupId);
-    if (!group) return;
-    group.querySelectorAll('.radio-btn').forEach(b => {
-      b.classList.toggle('selected', b.textContent.trim() === defaultVal);
-    });
-  });
-
-  // Reset tempo
-  document.querySelectorAll('#sTempo .tempo-btn').forEach((b, i) => {
-    b.classList.toggle('selected', i === 1); // "Adapté" = index 1
-  });
-
   setTargetMode('manual');
   openModal('modalNewSession');
-  setTimeout(() => { initCanvas(); }, 50);
+  setTimeout(() => { initCanvas(); initRanges(); }, 50);
 }
 
 function getRadioValue(groupId) {
@@ -1619,11 +1532,7 @@ function getRadioValue(groupId) {
 
 function getTempoValue() {
   const sel = document.querySelector('#sTempo .tempo-btn.selected');
-  if (!sel) return 'Adapté';
-  // Get text content excluding the icon span
-  const clone = sel.cloneNode(true);
-  clone.querySelector('.tempo-icon')?.remove();
-  return clone.textContent.trim() || 'Adapté';
+  return sel ? sel.querySelector('.tempo-icon').nextSibling?.textContent?.trim() || sel.textContent.trim() : 'Adapté';
 }
 
 function saveSession() {
@@ -1714,8 +1623,7 @@ function renderHome() {
   document.getElementById('statAvg').textContent = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : '—';
 
   if (scores.length > 0) {
-    const lastScore = s[0].resultats?.score;
-    document.getElementById('heroScore').textContent = lastScore !== undefined ? lastScore : '—';
+    document.getElementById('heroScore').textContent = s[0].resultats?.score || '—';
     document.getElementById('heroDate').textContent = formatDate(s[0].date);
     const last5 = scores.slice(0, 5);
     const prev5 = scores.slice(5, 10);
@@ -1760,10 +1668,7 @@ function renderHome() {
 // ===================== SESSION CARD =====================
 function sessionCardHTML(sess) {
   const score = sess.resultats?.score || 0;
-  // Max score depends on number of shots: default 10 shots per carton × nb cartons
-  const nbCartons = sess.resultats?.nbCartons || 1;
-  const nbTirs = sess.materiel?.nbTirs || (nbCartons * 10);
-  const maxScore = Math.max(100, nbTirs * 10, score);
+  const maxScore = 100; // 10 tirs × 10pts
   const pct = Math.min(100, (score / maxScore) * 100);
   const strokeLen = 2 * Math.PI * 22;
   const dash = (pct / 100) * strokeLen;
@@ -1940,20 +1845,16 @@ function renderProgressChart() {
   const wrap = canvas.parentElement;
   const W = wrap.clientWidth || 340;
   const H = 200;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = W * dpr;
-  canvas.height = H * dpr;
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
+  canvas.width = W;
+  canvas.height = H;
   const c = canvas.getContext('2d');
-  c.scale(dpr, dpr);
   const scores = sessWithScore.map(s => s.resultats.score);
   const minS = Math.min(...scores) - 5;
   const maxS = Math.max(...scores) + 5;
   const pad = { t: 10, r: 10, b: 30, l: 36 };
 
   c.clearRect(0, 0, W, H);
-  // Grid (using logical W/H since ctx is scaled)
+  // Grid
   c.strokeStyle = 'rgba(255,255,255,0.05)';
   c.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
@@ -2270,8 +2171,6 @@ function importData(e) {
       localStorage.setItem('tp_equipment', JSON.stringify(equipment));
       showToast(`✅ ${sessions.length} séances importées`, 'success');
       renderHome();
-      renderHistory();
-      renderMore();
     } catch (err) {
       showToast('❌ Fichier JSON invalide', 'error');
     }
@@ -2288,4 +2187,83 @@ function resetData() {
   localStorage.removeItem('tp_equipment');
   showToast('Données réinitialisées', '');
   renderHome();
-  renderHisto
+}
+
+// ===================== DEMO DATA =====================
+function loadDemoData() {
+  if (!confirm('Charger les données de démo ? Les données actuelles seront remplacées.')) return;
+  equipment = [
+    { id: 'eq1', name: 'FWB P8X Pro', brand: 'Feinwerkbau (FWB)', model: 'P8X', alim: 'Air comprimé (PCP)', shots: 4234, notes: 'Détente réglée à 500g. Hausse +2.' },
+    { id: 'eq2', name: 'Walther LP500', brand: 'Walther', model: 'LP500', alim: 'Air comprimé (PCP)', shots: 1820, notes: 'Pistolet de compétition' }
+  ];
+
+  const baseDate = new Date();
+  const makeSession = (daysAgo, score, conc, stress, fatigue, sommeil, tags = []) => {
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() - daysAgo);
+    return {
+      id: (Date.now() - daysAgo * 86400000).toString(),
+      date: d.toISOString().split('T')[0],
+      duration: 60 + Math.floor(Math.random() * 60),
+      lieu: 'Stand club', type: daysAgo % 14 < 2 ? 'Compétition' : 'Entraînement',
+      pistoletId: daysAgo % 3 === 0 ? 'eq2' : 'eq1',
+      pistoletName: daysAgo % 3 === 0 ? 'Walther LP500 (Walther)' : 'FWB P8X Pro (Feinwerkbau (FWB))',
+      physique: { fc: 62 + Math.floor(Math.random()*15), sommeil, fatigue, position: 'Debout' },
+      mental: { concentration: conc, stress, routine: 'Complète' },
+      conditions: { lumiere: 'Artificielle standard', temp: 19 + Math.floor(Math.random()*4) },
+      materiel: { plombs: 'RWS Meisterkugeln', pression: 190 + Math.floor(Math.random()*20), nbTirs: 60, visee: 'Open sight' },
+      resultats: { score, meilleur10: Math.floor(score/10), groupement: score > 80 ? 'Bon' : 'Moyen', centreVisee: 'Centre', impacts: [], aiScan: false, aiData: null, nbCartons: 5 },
+      bilan: { ressenti: Math.floor((score - 40) / 10), stress: stress > 6 ? 'Modéré' : 'Calme', distractions: 'Aucune', regularite: score > 80 ? 'Régulier' : 'Correct', souffle: 'Maîtrisé', tempo: 'Adapté' },
+      notes: '',
+      tags
+    };
+  };
+
+  sessions = [
+    makeSession(0, 89, 9, 2, 3, 7.5, ['Focus', 'PR']),
+    makeSession(3, 84, 8, 3, 4, 7, []),
+    makeSession(7, 87, 8, 2, 3, 8, ['Focus']),
+    makeSession(10, 79, 7, 4, 5, 6.5, ['IA']),
+    makeSession(14, 91, 9, 2, 2, 8.5, ['Focus', 'PR']),
+    makeSession(17, 82, 7, 5, 4, 7, ['Stress']),
+    makeSession(21, 76, 6, 6, 6, 6, []),
+    makeSession(24, 85, 8, 3, 3, 7.5, ['IA']),
+    makeSession(28, 80, 7, 4, 5, 7, []),
+    makeSession(31, 73, 6, 5, 7, 5.5, ['Stress']),
+  ];
+
+  localStorage.setItem('tp_sessions', JSON.stringify(sessions));
+  localStorage.setItem('tp_equipment', JSON.stringify(equipment));
+  showToast('🎯 Données de démo chargées !', 'success');
+  renderHome();
+}
+
+// ===================== FILTER MODAL =====================
+function openFilterModal() {
+  showToast('Filtres bientôt disponibles', '');
+}
+
+// ===================== UTILS =====================
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: '2-digit' });
+}
+
+// ===================== INIT =====================
+function init() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  // Load API key
+  document.getElementById('geminiKeyInput').value = geminiKey;
+  // Init ranges
+  initRanges();
+  // Render home
+  renderHome();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
