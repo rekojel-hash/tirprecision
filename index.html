@@ -1334,11 +1334,11 @@ function handlePhotoUpload(e) {
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      canvas.getContext('2d').drawImage(img, 0, 0);
-      canvas.toBlob((blob) => {
+      const offscreen = document.createElement('canvas');
+      offscreen.width = img.naturalWidth;
+      offscreen.height = img.naturalHeight;
+      offscreen.getContext('2d').drawImage(img, 0, 0);
+      offscreen.toBlob((blob) => {
         URL.revokeObjectURL(objectUrl);
         const reader = new FileReader();
         reader.onload = (ev) => {
@@ -2291,4 +2291,4 @@ function resetData() {
 
 // ===================== DEMO DATA =====================
 function loadDemoData() {
-  if (!confirm('Charger les données de démo ? Les données actuelles seront re
+  if (!confirm('Charger les données de démo ? Les données actu
