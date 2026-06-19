@@ -2253,7 +2253,30 @@ function formatDate(dateStr) {
 // ===================== INIT =====================
 function init() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.update();
+      // Si un nouveau SW est en attente (waiting), on l'active immédiatement
+      if (reg.waiting) {
+        reg.waiting.postMessage('SKIP_WAITING');
+      }
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // Nouveau SW prêt → on lui dit de prendre le contrôle direct
+            newWorker.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    }).catch(() => {});
+
+    // Si le SW change de contrôleur (mise à jour appliquée), recharger une seule fois
+    let refreshed = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshed) return;
+      refreshed = true;
+      window.location.reload();
+    });
   }
   // Load API key
   document.getElementById('geminiKeyInput').value = geminiKey;
