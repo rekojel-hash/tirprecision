@@ -668,7 +668,7 @@ input[type=range]::-webkit-slider-thumb {
   <div class="section" style="padding-top:16px">
     <div class="card-title">Analyse IA — Gemini</div>
     <div class="info-box ai" style="margin-bottom:14px">
-      🤖 L'analyse des cartons de tir utilise <strong>Google Gemini 1.5 Flash</strong> (gratuit — 1 500 req/jour).<br>
+      🤖 L'analyse des cartons de tir utilise <strong>Google Gemini 2.5 Flash</strong> (gratuit, quotas variables — voir ai.google.dev).<br>
       Obtenez votre clé API gratuite sur <a href="https://aistudio.google.com" target="_blank" style="color:#A78BFA">aistudio.google.com</a>
     </div>
     <div class="form-group">
@@ -700,7 +700,7 @@ input[type=range]::-webkit-slider-thumb {
       <strong>TirPro v2.0</strong> — Application de suivi de tir de précision pistolet à plombs 10m<br>
       <br>📱 PWA — fonctionne hors ligne<br>
       🔒 Données locales — jamais transmises<br>
-      🤖 IA — Google Gemini 1.5 Flash<br>
+      🤖 IA — Google Gemini 2.5 Flash<br>
       <br>Version 2.0 • Juin 2025
     </div>
   </div>
@@ -1366,6 +1366,9 @@ async function analyzeWithAI() {
   if (!key) { showToast('⚠️ Configurez votre clé API Gemini dans Plus', 'error'); return; }
   if (!currentPhotoBase64) { showToast('📷 Uploadez une photo d\'abord', 'error'); return; }
 
+  console.log('[TirPro AI] Démarrage analyse — clé présente:', !!key, 'longueur clé:', key.length, 'mimeType:', currentPhotoMimeType, 'base64 length:', currentPhotoBase64.length);
+  showToast('🤖 Envoi à Gemini...', '');
+
   document.getElementById('aiLoadingWrap').style.display = 'flex';
   document.getElementById('btnAnalyzeAI').disabled = true;
   document.getElementById('aiResultWrap').style.display = 'none';
@@ -1385,7 +1388,8 @@ Analyse ce carton de tir et réponds UNIQUEMENT en JSON valide sans backticks, a
 Si tu ne peux pas analyser l'image, mets score_total à 0 et fiabilite à 0.`;
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+    console.log('[TirPro AI] Appel fetch vers Gemini...');
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1398,8 +1402,10 @@ Si tu ne peux pas analyser l'image, mets score_total à 0 et fiabilite à 0.`;
         generationConfig: { temperature: 0.1, maxOutputTokens: 1024 }
       })
     });
+    console.log('[TirPro AI] Réponse reçue — status:', response.status, response.statusText);
 
     const data = await response.json();
+    console.log('[TirPro AI] Données parsées:', data);
     if (data.error) {
       const code = data.error.code || response.status;
       const msg = data.error.message || 'Erreur inconnue';
@@ -1426,8 +1432,8 @@ Si tu ne peux pas analyser l'image, mets score_total à 0 et fiabilite à 0.`;
     }
 
   } catch (err) {
-    console.error(err);
-    showToast('❌ Erreur Gemini: ' + err.message.substring(0, 50), 'error');
+    console.error('[TirPro AI] ERREUR CAPTURÉE:', err);
+    showToast('❌ Erreur: ' + (err.message || String(err)).substring(0, 80), 'error');
   } finally {
     document.getElementById('aiLoadingWrap').style.display = 'none';
     document.getElementById('btnAnalyzeAI').disabled = false;
